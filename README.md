@@ -2,7 +2,7 @@
 
 Notes for the CTF course at HdM Stuttgart.
 
-[![pandoc CI](https://github.com/pojntfx/learning-ctf/actions/workflows/pandoc.yaml/badge.svg)](https://github.com/dentremor/learning-ctf/actions/workflows/pandoc.yaml)
+[![pandoc CI](https://github.com/dentremor/learning-ctf/actions/workflows/pandoc.yml/badge.svg?branch=main)](https://github.com/dentremor/learning-ctf/actions/workflows/pandoc.yml)
 
 ## Overview
 
