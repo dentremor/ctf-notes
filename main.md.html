@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Daniel Hiller" />
+  <title>CTF</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">CTF</h1>
+<p class="author">Daniel Hiller</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#ctf"><span class="toc-section-number">1</span> CTF</a>
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1.1</span> Introduction</a>
+<ul>
+<li><a href="#contributing"><span class="toc-section-number">1.1.1</span> Contributing</a></li>
+<li><a href="#license"><span class="toc-section-number">1.1.2</span> License</a></li>
+</ul></li>
+<li><a href="#exploiting-network-services"><span class="toc-section-number">1.2</span> Exploiting Network Services</a>
+<ul>
+<li><a href="#github-repos"><span class="toc-section-number">1.2.1</span> GitHub Repos</a></li>
+<li><a href="#bash"><span class="toc-section-number">1.2.2</span> Bash</a></li>
+<li><a href="#find"><span class="toc-section-number">1.2.3</span> Find</a></li>
+<li><a href="#ssh"><span class="toc-section-number">1.2.4</span> SSH</a></li>
+<li><a href="#nmap"><span class="toc-section-number">1.2.5</span> NMAP</a></li>
+<li><a href="#ftp"><span class="toc-section-number">1.2.6</span> FTP</a>
+<ul>
+<li><a href="#hydra"><span class="toc-section-number">1.2.6.1</span> Hydra</a></li>
+</ul></li>
+<li><a href="#nfs"><span class="toc-section-number">1.2.7</span> NFS</a></li>
+<li><a href="#smtp"><span class="toc-section-number">1.2.8</span> SMTP</a></li>
+<li><a href="#metasploit"><span class="toc-section-number">1.2.9</span> Metasploit</a></li>
+<li><a href="#mysql"><span class="toc-section-number">1.2.10</span> MySQL</a></li>
+<li><a href="#jon-the-ripper"><span class="toc-section-number">1.2.11</span> Jon the Ripper</a></li>
+</ul></li>
+<li><a href="#web-fundamentals"><span class="toc-section-number">1.3</span> Web Fundamentals</a>
+<ul>
+<li><a href="#curl"><span class="toc-section-number">1.3.1</span> Curl</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+<h1 data-number="1" id="ctf"><span class="header-section-number">1</span> CTF</h1>
+<h2 data-number="1.1" id="introduction"><span class="header-section-number">1.1</span> Introduction</h2>
+<h3 data-number="1.1.1" id="contributing"><span class="header-section-number">1.1.1</span> Contributing</h3>
+<p><strong>Found an error or have a suggestion?</strong> Please open an issue on GitHub (<a href="https://github.com/dentremor/Software-Defined-Infrastrucure">github.com/dentremor/Software-Defined-Infrastrucure</a>):</p>
+<figure>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXIAAAFyAQAAAADAX2ykAAACcklEQVR4nO2bTYrbQBBGX6UFXsqQA/gorZvN1aSj+AABaTnQ4suiu2U5MEyGaBTJVC2MZb1FQfFV10/bxFds+PElHJx33nnnnXfe+Y94K9bAYA0wmQGzwVTfdTv64/zGfJQkjQDMZnYFM7sICJIkPfPf7Y/zG/NTVWgcy4d65vxbFva+/jj/TfxwDYJWIo5B6v+3P85vy8exnrpdmw7gj/P/xNfE2wqYwCAkG26pYbj+agSwHoEczX/n/4ofzHJVVc7f+0XE+0XWMefyeV9/nN+Iz/p9KFSQAGZjuCWKsPfzx/lteXLzE5VQT8jBzFVVlKS+TRnJ1h/Nf+c/sRK4MQjahPpWpX5eFdGtVMJ9NP+d/8SKLgnrhiiOQZJyftaaO5r/zn9iNT9rJdMq3eXt6PE9Kd88vlq8N0vHOzcMN+V2ScMtNRb7PfxxflueOlxeEjIhH8eP/Oz11Uvw1k2XvGSwDjC7BhHvvj86M7/Uz0DMgq2qLe1SWDdJrt+T8Uv9TN0a1YRciiwlJHl8T8qvhhclliN10rG0Rt7/npy3DoCpWfaDKQ+x1LcJextnnz+fk1/0+6iVS0IGSqTzwez6PS9v3dRAvJsx1Fs5RL1b1jTTpW76j+m/8x+ano04hjrEgqzasjN0/Z6Qz/OrerqGpOG6PBGSMf1M0KZG+/jj/LfwsTbB1gH5fuyjHS45e0d/nN+IX20Q6v7ocSE2rJK0978vwedbdcMVJL1bDvzg93NehVc/NdjbuGTqtii5PB7df+f/sDq6Utka9Tzfel4NKT0/n49f9oMA9RLH+qYOkB89vmfkzf/f7bzzzjvvvPO7878BSJAAqnD6uCYAAAAASUVORK5CYII=" width="150" alt="QR code to source repository" /><figcaption aria-hidden="true">QR code to source repository</figcaption>
+</figure>
+<h3 data-number="1.1.2" id="license"><span class="header-section-number">1.1.2</span> License</h3>
+<figure>
+<img src="data:image/png;base64,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" width="128" alt="AGPL-3.0 license badge" /><figcaption aria-hidden="true">AGPL-3.0 license badge</figcaption>
+</figure>
+<p>Software Defined Infrastructure (c) 2021 Daniel Hiller and contributors</p>
+<p>SPDX-License-Identifier: AGPL-3.0 </p>
+<h2 data-number="1.2" id="exploiting-network-services"><span class="header-section-number">1.2</span> Exploiting Network Services</h2>
+<h3 data-number="1.2.1" id="github-repos"><span class="header-section-number">1.2.1</span> GitHub Repos</h3>
+<p>SecLists: https://github.com/danielmiessler/SecLists</p>
+<h3 data-number="1.2.2" id="bash"><span class="header-section-number">1.2.2</span> Bash</h3>
+<p>Run a <code>bashscript</code> with persistent permissions:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./bashscript <span class="at">-p</span></span></code></pre></div>
+<pre class="text"><code>*(-p   = persists the permissions)</code></pre>
+<h3 data-number="1.2.3" id="find"><span class="header-section-number">1.2.3</span> Find</h3>
+<p><code>Find</code> a file in a specific directory:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> find / <span class="at">-name</span> <span class="st">&quot;*smtp_version*&quot;</span></span></code></pre></div>
+<pre class="text"><code>*(/       = directory where the search recursively starts
+  -name   = only show matching results
+  [para]  = search-parameter to match)</code></pre>
+<h3 data-number="1.2.4" id="ssh"><span class="header-section-number">1.2.4</span> SSH</h3>
+<p>Authenticate via ssh with the key-file <code>id_rsa</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-i</span> id_rsa user@10.10.10.10</span></code></pre></div>
+<pre class="text"><code>*(-i [file]  = Identity file)</code></pre>
+<h3 data-number="1.2.5" id="nmap"><span class="header-section-number">1.2.5</span> NMAP</h3>
+<p>Checks open ports in defined range and check running services with <code>Nmap</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap 10.10.221.8 <span class="at">-sV</span> <span class="at">-p</span> 0-60000</span></code></pre></div>
+<pre class="text"><code>*(-p   = Specific port or portrange
+  -sV  = Attempts to determine the version of the service running on port
+  -A   = Enables OS detection, version detection, script scanning and traceroute)</code></pre>
+<h3 data-number="1.2.6" id="ftp"><span class="header-section-number">1.2.6</span> FTP</h3>
+<p>Download a File from an FTP-Server with <code>Wget</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget <span class="at">-m</span> ftp://user:password@ftp.example.com</span></code></pre></div>
+<pre class="text"><code>*(-m = --mirror)</code></pre>
+<h4 data-number="1.2.6.1" id="hydra"><span class="header-section-number">1.2.6.1</span> Hydra</h4>
+<p>Use <code>Hydra</code> for cracking password in our example on an FTP-Service:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> hydra <span class="at">-t</span> 4 <span class="at">-l</span> dale <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.10.6 ftp</span></code></pre></div>
+<pre class="text"><code>*(-t 4      = Number of parallel connections per target
+  -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
+  -P [file] = Points to the file containing the list of possible passwords
+  -vV       = Very verbose: shows the login+pass combination for each attempt
+  [IP]      = The IP address of the target machine
+  [ftp]     = Sets the protocol)</code></pre>
+<h3 data-number="1.2.7" id="nfs"><span class="header-section-number">1.2.7</span> NFS</h3>
+<p>List name or <code>NFS</code> shares:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/showmount <span class="at">-e</span> [IP]</span></code></pre></div>
+<pre class="text"><code>*(-e    = Shows the NSF server&#39;s export list
+  [IP]  = The IP Address of the NFS server)</code></pre>
+<p>Connect <code>NFS</code> share with mount point on our machine:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount <span class="at">-t</span> nfs IP:share /tmp/mount/ <span class="at">-nolock</span></span></code></pre></div>
+<pre class="text"><code>*(-t nfs    = Type of device to mount, then specifying that it&#39;s NFS
+  IP:share  = The IP Address of the NFS server, and the name of the share we wish to mount
+  -nolock   = Specifies not to use NLM locking)</code></pre>
+<h3 data-number="1.2.8" id="smtp"><span class="header-section-number">1.2.8</span> SMTP</h3>
+<p>There a three relevant commands, when it comes to <code>SMTP</code>:</p>
+<pre class="text"><code>(VRFY    = Confirming the names of valid users
+ EXPN    = Reveals the actual address of user’s aliases and lists of e-mail (mailing lists)
+ RCPT TO = Specifies the e-mail address of the recipient)</code></pre>
+<h3 data-number="1.2.9" id="metasploit"><span class="header-section-number">1.2.9</span> Metasploit</h3>
+<pre class="text"><code>*(search [name]                 = Search for a module and his description
+  use [name]                    = Selects a module by name
+  options                       = When a module is selected we will see the options of the module
+  set [option] [parameter]      = Set a specific option with a specific parameter
+  run                           = Run the exploit)</code></pre>
+<p>For further information see the following documentation: https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/</p>
+<h3 data-number="1.2.10" id="mysql"><span class="header-section-number">1.2.10</span> MySQL</h3>
+<p>First we need a client, which is in our case <code>default-mysql-client</code>:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
+<pre class="text"><code>*(-h [IP]        = Connect to the MariaDB server on the given host
+  -u [username]  = The MariaDB user name to use when connecting to the server
+  -p             = The password to use when connecting to the server)</code></pre>
+<p>If we do not have any credentials we can use <code>Nmap</code> or <code>Metasplot</code> to gain this information:</p>
+<pre class="nmap```"><code>```bash
+$ nmap --script=mysql-enum [target]</code></pre>
+<pre class="text"><code>*(--script=mysql-enum           = Scan with a single script: mysql-enum
+  [target]                      = The IP address of the target)</code></pre>
+<p>Now that we know some usernames of the database, we can try to crack the passwords of them with <code>Hydra</code>:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
+<pre class="text"><code>*(-t 16     = Number of parallel connections per target
+  -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
+  -P [file] = Points to the file containing the list of possible passwords
+  -vV       = Very verbose: shows the login+pass combination for each attempt
+  [IP]      = The IP address of the target machine
+  [mysql]   = Sets the protocol)</code></pre>
+<h3 data-number="1.2.11" id="jon-the-ripper"><span class="header-section-number">1.2.11</span> Jon the Ripper</h3>
+<p>If we have a hash which look something like the following example:</p>
+<pre><code>carl:*EA031893AA21444B170FC2162A56978B8CEECE18</code></pre>
+<p>We can pipe the hash in a file:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
+<p>And crack the password with <code>John the Ripper</code> (In <code>Kali</code> the bash has some problem to execute the package, so we do it by our self):</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">or</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/john hash.txt</span></code></pre></div>
+<h2 data-number="1.3" id="web-fundamentals"><span class="header-section-number">1.3</span> Web Fundamentals</h2>
+<h3 data-number="1.3.1" id="curl"><span class="header-section-number">1.3.1</span> Curl</h3>
+<p>If we want to get sources of a webpage, we can do this with <code>Curl</code>:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-X</span> GET http://10.10.4.59:8081/ctf/post</span></code></pre></div>
+<pre class="text"><code>*(-X [GET]          = Set kind of fetch
+  [target]          = The URL of the webpage we want to fetch
+  -d [param]        = Sends the specified data in a POST  request  to  the HTTP server)</code></pre>
+</body>
+</html>
