@@ -22,7 +22,7 @@
       padding-top: 50px;
       padding-bottom: 50px;
       hyphens: auto;
-      word-wrap: break-word;
+      overflow-wrap: break-word;
       text-rendering: optimizeLegibility;
       font-kerning: normal;
     }
@@ -93,6 +93,7 @@
     pre code {
       padding: 0;
       overflow: visible;
+      overflow-wrap: normal;
     }
     .sourceCode {
      background-color: transparent;
@@ -225,26 +226,30 @@
 <li><a href="#contributing"><span class="toc-section-number">1.1.1</span> Contributing</a></li>
 <li><a href="#license"><span class="toc-section-number">1.1.2</span> License</a></li>
 </ul></li>
-<li><a href="#exploiting-network-services"><span class="toc-section-number">1.2</span> Exploiting Network Services</a>
+<li><a href="#vm"><span class="toc-section-number">1.2</span> VM</a>
 <ul>
-<li><a href="#github-repos"><span class="toc-section-number">1.2.1</span> GitHub Repos</a></li>
-<li><a href="#bash"><span class="toc-section-number">1.2.2</span> Bash</a></li>
-<li><a href="#find"><span class="toc-section-number">1.2.3</span> Find</a></li>
-<li><a href="#ssh"><span class="toc-section-number">1.2.4</span> SSH</a></li>
-<li><a href="#nmap"><span class="toc-section-number">1.2.5</span> NMAP</a></li>
-<li><a href="#ftp"><span class="toc-section-number">1.2.6</span> FTP</a>
-<ul>
-<li><a href="#hydra"><span class="toc-section-number">1.2.6.1</span> Hydra</a></li>
+<li><a href="#qemu"><span class="toc-section-number">1.2.1</span> QEMU</a></li>
 </ul></li>
-<li><a href="#nfs"><span class="toc-section-number">1.2.7</span> NFS</a></li>
-<li><a href="#smtp"><span class="toc-section-number">1.2.8</span> SMTP</a></li>
-<li><a href="#metasploit"><span class="toc-section-number">1.2.9</span> Metasploit</a></li>
-<li><a href="#mysql"><span class="toc-section-number">1.2.10</span> MySQL</a></li>
-<li><a href="#jon-the-ripper"><span class="toc-section-number">1.2.11</span> Jon the Ripper</a></li>
-</ul></li>
-<li><a href="#web-fundamentals"><span class="toc-section-number">1.3</span> Web Fundamentals</a>
+<li><a href="#exploiting-network-services"><span class="toc-section-number">1.3</span> Exploiting Network Services</a>
 <ul>
-<li><a href="#curl"><span class="toc-section-number">1.3.1</span> Curl</a></li>
+<li><a href="#github-repos"><span class="toc-section-number">1.3.1</span> GitHub Repos</a></li>
+<li><a href="#bash"><span class="toc-section-number">1.3.2</span> Bash</a></li>
+<li><a href="#find"><span class="toc-section-number">1.3.3</span> Find</a></li>
+<li><a href="#ssh"><span class="toc-section-number">1.3.4</span> SSH</a></li>
+<li><a href="#nmap"><span class="toc-section-number">1.3.5</span> NMAP</a></li>
+<li><a href="#ftp"><span class="toc-section-number">1.3.6</span> FTP</a>
+<ul>
+<li><a href="#hydra"><span class="toc-section-number">1.3.6.1</span> Hydra</a></li>
+</ul></li>
+<li><a href="#nfs"><span class="toc-section-number">1.3.7</span> NFS</a></li>
+<li><a href="#smtp"><span class="toc-section-number">1.3.8</span> SMTP</a></li>
+<li><a href="#metasploit"><span class="toc-section-number">1.3.9</span> Metasploit</a></li>
+<li><a href="#mysql"><span class="toc-section-number">1.3.10</span> MySQL</a></li>
+<li><a href="#jon-the-ripper"><span class="toc-section-number">1.3.11</span> Jon the Ripper</a></li>
+</ul></li>
+<li><a href="#web-fundamentals"><span class="toc-section-number">1.4</span> Web Fundamentals</a>
+<ul>
+<li><a href="#curl"><span class="toc-section-number">1.4.1</span> Curl</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -262,67 +267,76 @@
 </figure>
 <p>Software Defined Infrastructure (c) 2021 Daniel Hiller and contributors</p>
 <p>SPDX-License-Identifier: AGPL-3.0 </p>
-<h2 data-number="1.2" id="exploiting-network-services"><span class="header-section-number">1.2</span> Exploiting Network Services</h2>
-<h3 data-number="1.2.1" id="github-repos"><span class="header-section-number">1.2.1</span> GitHub Repos</h3>
+<h2 data-number="1.2" id="vm"><span class="header-section-number">1.2</span> VM</h2>
+<h3 data-number="1.2.1" id="qemu"><span class="header-section-number">1.2.1</span> QEMU</h3>
+<p>To create a disk image run the following command:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">qemu-img</span> create <span class="at">-f</span> qcow2 disk.qcow2 64G</span></code></pre></div>
+<p>The VM can be executed with a bashscript (remove Image.iso with the distro image of your choice):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">qemu-system-x86_64</span> <span class="at">-enable-kvm</span> <span class="at">-m</span> 4096 <span class="at">-smp</span> <span class="va">$(</span><span class="ex">nproc</span><span class="va">)</span> <span class="at">-cpu</span> host <span class="at">-device</span> ac97 <span class="at">-audiodev</span> alsa,id=snd0,out.buffer-length=500000,out.period-length=726 <span class="at">-display</span> default,show-cursor=on <span class="at">-usb</span> <span class="at">-device</span> usb-tablet <span class="at">-device</span> virtio-keyboard-pci <span class="at">-net</span> nic <span class="at">-net</span> user <span class="at">-cdrom</span> Image.iso <span class="at">-device</span> virtio-vga,virgl=on <span class="at">-display</span> sdl,gl=on <span class="at">-hda</span> disk.qcow2 <span class="at">-bios</span> /usr/share/edk2/ovmf/OVMF_CODE.fd</span></code></pre></div>
+<p>If you also have a 4k-panel, you probably will face some scaling issues like me. In that case make sure you use <code>Wayland</code> instead of <code>X11</code>.</p>
+<h2 data-number="1.3" id="exploiting-network-services"><span class="header-section-number">1.3</span> Exploiting Network Services</h2>
+<h3 data-number="1.3.1" id="github-repos"><span class="header-section-number">1.3.1</span> GitHub Repos</h3>
 <p>SecLists: https://github.com/danielmiessler/SecLists</p>
-<h3 data-number="1.2.2" id="bash"><span class="header-section-number">1.2.2</span> Bash</h3>
+<h3 data-number="1.3.2" id="bash"><span class="header-section-number">1.3.2</span> Bash</h3>
 <p>Run a <code>bashscript</code> with persistent permissions:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./bashscript <span class="at">-p</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./bashscript <span class="at">-p</span></span></code></pre></div>
 <pre class="text"><code>*(-p   = persists the permissions)</code></pre>
-<h3 data-number="1.2.3" id="find"><span class="header-section-number">1.2.3</span> Find</h3>
+<h3 data-number="1.3.3" id="find"><span class="header-section-number">1.3.3</span> Find</h3>
 <p><code>Find</code> a file in a specific directory:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> find / <span class="at">-name</span> <span class="st">&quot;*smtp_version*&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> find / <span class="at">-name</span> <span class="st">&quot;*smtp_version*&quot;</span></span></code></pre></div>
 <pre class="text"><code>*(/       = directory where the search recursively starts
   -name   = only show matching results
   [para]  = search-parameter to match)</code></pre>
-<h3 data-number="1.2.4" id="ssh"><span class="header-section-number">1.2.4</span> SSH</h3>
+<h3 data-number="1.3.4" id="ssh"><span class="header-section-number">1.3.4</span> SSH</h3>
 <p>Authenticate via ssh with the key-file <code>id_rsa</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-i</span> id_rsa user@10.10.10.10</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-i</span> id_rsa user@10.10.10.10</span></code></pre></div>
 <pre class="text"><code>*(-i [file]  = Identity file)</code></pre>
-<h3 data-number="1.2.5" id="nmap"><span class="header-section-number">1.2.5</span> NMAP</h3>
+<h3 data-number="1.3.5" id="nmap"><span class="header-section-number">1.3.5</span> NMAP</h3>
 <p>Checks open ports in defined range and check running services with <code>Nmap</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap 10.10.221.8 <span class="at">-sV</span> <span class="at">-p</span> 0-60000</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap 10.10.221.8 <span class="at">-sV</span> <span class="at">-p</span> 0-60000</span></code></pre></div>
 <pre class="text"><code>*(-p   = Specific port or portrange
   -sV  = Attempts to determine the version of the service running on port
   -A   = Enables OS detection, version detection, script scanning and traceroute)</code></pre>
-<h3 data-number="1.2.6" id="ftp"><span class="header-section-number">1.2.6</span> FTP</h3>
+<h3 data-number="1.3.6" id="ftp"><span class="header-section-number">1.3.6</span> FTP</h3>
 <p>Download a File from an FTP-Server with <code>Wget</code>:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget <span class="at">-m</span> ftp://user:password@ftp.example.com</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget <span class="at">-m</span> ftp://user:password@ftp.example.com</span></code></pre></div>
 <pre class="text"><code>*(-m = --mirror)</code></pre>
-<h4 data-number="1.2.6.1" id="hydra"><span class="header-section-number">1.2.6.1</span> Hydra</h4>
+<h4 data-number="1.3.6.1" id="hydra"><span class="header-section-number">1.3.6.1</span> Hydra</h4>
 <p>Use <code>Hydra</code> for cracking password in our example on an FTP-Service:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> hydra <span class="at">-t</span> 4 <span class="at">-l</span> dale <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.10.6 ftp</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> hydra <span class="at">-t</span> 4 <span class="at">-l</span> dale <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.10.6 ftp</span></code></pre></div>
 <pre class="text"><code>*(-t 4      = Number of parallel connections per target
   -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
   -P [file] = Points to the file containing the list of possible passwords
   -vV       = Very verbose: shows the login+pass combination for each attempt
   [IP]      = The IP address of the target machine
   [ftp]     = Sets the protocol)</code></pre>
-<h3 data-number="1.2.7" id="nfs"><span class="header-section-number">1.2.7</span> NFS</h3>
+<h3 data-number="1.3.7" id="nfs"><span class="header-section-number">1.3.7</span> NFS</h3>
 <p>List name or <code>NFS</code> shares:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/showmount <span class="at">-e</span> [IP]</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/showmount <span class="at">-e</span> [IP]</span></code></pre></div>
 <pre class="text"><code>*(-e    = Shows the NSF server&#39;s export list
   [IP]  = The IP Address of the NFS server)</code></pre>
 <p>Connect <code>NFS</code> share with mount point on our machine:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount <span class="at">-t</span> nfs IP:share /tmp/mount/ <span class="at">-nolock</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount <span class="at">-t</span> nfs IP:share /tmp/mount/ <span class="at">-nolock</span></span></code></pre></div>
 <pre class="text"><code>*(-t nfs    = Type of device to mount, then specifying that it&#39;s NFS
   IP:share  = The IP Address of the NFS server, and the name of the share we wish to mount
   -nolock   = Specifies not to use NLM locking)</code></pre>
-<h3 data-number="1.2.8" id="smtp"><span class="header-section-number">1.2.8</span> SMTP</h3>
+<h3 data-number="1.3.8" id="smtp"><span class="header-section-number">1.3.8</span> SMTP</h3>
 <p>There a three relevant commands, when it comes to <code>SMTP</code>:</p>
 <pre class="text"><code>(VRFY    = Confirming the names of valid users
  EXPN    = Reveals the actual address of user’s aliases and lists of e-mail (mailing lists)
  RCPT TO = Specifies the e-mail address of the recipient)</code></pre>
-<h3 data-number="1.2.9" id="metasploit"><span class="header-section-number">1.2.9</span> Metasploit</h3>
+<h3 data-number="1.3.9" id="metasploit"><span class="header-section-number">1.3.9</span> Metasploit</h3>
 <pre class="text"><code>*(search [name]                 = Search for a module and his description
   use [name]                    = Selects a module by name
   options                       = When a module is selected we will see the options of the module
   set [option] [parameter]      = Set a specific option with a specific parameter
   run                           = Run the exploit)</code></pre>
 <p>For further information see the following documentation: https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/</p>
-<h3 data-number="1.2.10" id="mysql"><span class="header-section-number">1.2.10</span> MySQL</h3>
+<h3 data-number="1.3.10" id="mysql"><span class="header-section-number">1.3.10</span> MySQL</h3>
 <p>First we need a client, which is in our case <code>default-mysql-client</code>:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
 <pre class="text"><code>*(-h [IP]        = Connect to the MariaDB server on the given host
   -u [username]  = The MariaDB user name to use when connecting to the server
   -p             = The password to use when connecting to the server)</code></pre>
@@ -332,26 +346,26 @@ $ nmap --script=mysql-enum [target]</code></pre>
 <pre class="text"><code>*(--script=mysql-enum           = Scan with a single script: mysql-enum
   [target]                      = The IP address of the target)</code></pre>
 <p>Now that we know some usernames of the database, we can try to crack the passwords of them with <code>Hydra</code>:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
 <pre class="text"><code>*(-t 16     = Number of parallel connections per target
   -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
   -P [file] = Points to the file containing the list of possible passwords
   -vV       = Very verbose: shows the login+pass combination for each attempt
   [IP]      = The IP address of the target machine
   [mysql]   = Sets the protocol)</code></pre>
-<h3 data-number="1.2.11" id="jon-the-ripper"><span class="header-section-number">1.2.11</span> Jon the Ripper</h3>
+<h3 data-number="1.3.11" id="jon-the-ripper"><span class="header-section-number">1.3.11</span> Jon the Ripper</h3>
 <p>If we have a hash which look something like the following example:</p>
 <pre><code>carl:*EA031893AA21444B170FC2162A56978B8CEECE18</code></pre>
 <p>We can pipe the hash in a file:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
 <p>And crack the password with <code>John the Ripper</code> (In <code>Kali</code> the bash has some problem to execute the package, so we do it by our self):</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">or</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/john hash.txt</span></code></pre></div>
-<h2 data-number="1.3" id="web-fundamentals"><span class="header-section-number">1.3</span> Web Fundamentals</h2>
-<h3 data-number="1.3.1" id="curl"><span class="header-section-number">1.3.1</span> Curl</h3>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/john hash.txt</span></code></pre></div>
+<h2 data-number="1.4" id="web-fundamentals"><span class="header-section-number">1.4</span> Web Fundamentals</h2>
+<h3 data-number="1.4.1" id="curl"><span class="header-section-number">1.4.1</span> Curl</h3>
 <p>If we want to get sources of a webpage, we can do this with <code>Curl</code>:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-X</span> GET http://10.10.4.59:8081/ctf/post</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-X</span> GET http://10.10.4.59:8081/ctf/post</span></code></pre></div>
 <pre class="text"><code>*(-X [GET]          = Set kind of fetch
   [target]          = The URL of the webpage we want to fetch
   -d [param]        = Sends the specified data in a POST  request  to  the HTTP server)</code></pre>
