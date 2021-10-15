@@ -23,6 +23,23 @@ Software Defined Infrastructure (c) 2021 Daniel Hiller and contributors
 SPDX-License-Identifier: AGPL-3.0
 \newpage
 
+## VM
+
+### QEMU
+
+To create a disk image run the following command:
+```bash
+qemu-img create -f qcow2 disk.qcow2 64G
+```
+
+The VM can be executed with a bashscript (remove Image.iso with the distro image of your choice):
+```bash
+#!/bin/bash
+
+qemu-system-x86_64 -enable-kvm -m 4096 -smp $(nproc) -cpu host -device ac97 -audiodev alsa,id=snd0,out.buffer-length=500000,out.period-length=726 -display default,show-cursor=on -usb -device usb-tablet -device virtio-keyboard-pci -net nic -net user -cdrom Image.iso -device virtio-vga,virgl=on -display sdl,gl=on -hda disk.qcow2 -bios /usr/share/edk2/ovmf/OVMF_CODE.fd
+```
+
+If you also have a 4k-panel, you probably will face some scaling issues like me. In that case make sure you use ```Wayland``` instead of ```X11```.
 
 ## Exploiting Network Services
 
@@ -179,7 +196,9 @@ $ echo carl:*EA031893AA21444B170FC2162A56978B8CEECE18 > hash.txt
 And crack the password with ```John the Ripper``` (In ```Kali``` the bash has some problem to execute the package, so we do it by our self):
 ```bash
 $ john hash.txt
+```
 or
+```bash
 $ /usr/sbin/john hash.txt
 ```
 
