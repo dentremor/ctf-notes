@@ -7,3 +7,5 @@ Huhn
 Micha
 tableofcontents
 newpage
+Metasploit
+NMAP

