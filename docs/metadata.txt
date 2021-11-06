@@ -1,6 +1,6 @@
 CTF Notes
 Notes for the CTF course at HdM Stuttgart.
 © 2021 Daniel Hiller under AGPL-3.0
-https://github.com/dentremor/learning-ctf
-https://github.com/dentremor/learning-ctf/releases/latest/download/all.zip
+https://github.com/dentremor/ctf-notes
+https://github.com/dentremor/ctf-notes/releases/latest/download/all.zip
 🚀 Happy hacking!
