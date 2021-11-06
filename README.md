@@ -2,11 +2,11 @@
 
 Notes for the CTF course at HdM Stuttgart.
 
-[![pandoc CI](https://github.com/dentremor/learning-ctf/actions/workflows/pandoc.yml/badge.svg?branch=main)](https://github.com/dentremor/learning-ctf/actions/workflows/pandoc.yml)
+[![pandoc CI](https://github.com/dentremor/ctf-notes/actions/workflows/pandoc.yml/badge.svg?branch=main)](https://github.com/dentremor/learning-ctf/actions/workflows/pandoc.yml)
 
 ## Overview
 
-You can [view and download the notes from GitHub pages](https://dentremor.github.io/learning-ctf/). They can also be downloaded as a Zip archive from [GitHub releases](https://github.com/dentremor/learning-ctf/releases).
+You can [view and download the notes from GitHub pages](https://dentremor.github.io/ctf-notes/). They can also be downloaded as a Zip archive from [GitHub releases](https://github.com/dentremor/learning-ctf/releases).
 
 ## License
 
