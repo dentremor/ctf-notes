@@ -456,7 +456,9 @@ Bash allows us to debug our code by using the "`-x`" (`xtrace`) and "`-v`" (`ver
 ### Cheat Sheet
 
 For more information about bash scripting have a look in the following cheat sheet: https://devhints.io/bash
+
 ## Information Gathering
+
 ### Passive Information Gathering
 
 `whois` can be used for querying domain names, IP addresses, or autonomous systems.
