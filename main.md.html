@@ -883,7 +883,7 @@ echo -e &quot;Content of the variable: \n\t$content&quot;</code></pre>
 <p>To find all available subdomains we can use <code>Project Sonar</code>:</p>
 <pre class="shell"><code>$ curl -s https://sonar.omnisint.io/subdomains/$TARGET | jq -r &#39;.[]&#39; | sort -u</code></pre>
 <h4 data-number="1.5.1.3" id="certificates"><span class="header-section-number">1.5.1.3</span> Certificates</h4>
-<p>To gain more information we can search for certificates at sites like <code>https://crt.sh</code> and <code>https://search.censys.io/certificates</code>.</p>
+<p>To gain more information we can search for certificates at sites like <a href="https://crt.sh">crt.sh</a> and <a href="https://search.censys.io/certificates">search.censys.io</a>.</p>
 <h3 data-number="1.5.2" id="active-information-gathering"><span class="header-section-number">1.5.2</span> Active Information Gathering</h3>
 <p><code>Wappalyzer</code> is a browser extension which finds out what technologies are used on a website.</p>
 <p><code>WAFW00F</code> is a Web Application Firewall Fingerprinting Tool.</p>
@@ -906,7 +906,7 @@ echo -e &quot;Content of the variable: \n\t$content&quot;</code></pre>
 <!-- USE wafwoof to detect the CMS!!! -->
 <h2 data-number="1.6" id="exploiting-network-services"><span class="header-section-number">1.6</span> Exploiting Network Services</h2>
 <h3 data-number="1.6.1" id="github-repos"><span class="header-section-number">1.6.1</span> GitHub Repos</h3>
-<p>SecLists: https://github.com/danielmiessler/SecLists</p>
+<p>[SecLists] (https://github.com/danielmiessler/SecLists)</p>
 <h3 data-number="1.6.2" id="ssh"><span class="header-section-number">1.6.2</span> SSH</h3>
 <p>Authenticate via ssh with the key-file <code>id_rsa</code>:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-i</span> id_rsa user@10.10.10.10</span></code></pre></div>
@@ -952,7 +952,7 @@ echo -e &quot;Content of the variable: \n\t$content&quot;</code></pre>
   options                       = When a module is selected we will see the options of the module
   set [option] [parameter]      = Set a specific option with a specific parameter
   run                           = Run the exploit)</code></pre>
-<p>For further information see the following documentation: https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/</p>
+<p>For further information see the following documentation: <a href="https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/">offensive-security.com</a></p>
 <h3 data-number="1.6.8" id="mysql"><span class="header-section-number">1.6.8</span> MySQL</h3>
 <p>First we need a client, which is in our case <code>default-mysql-client</code>:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
@@ -995,7 +995,7 @@ $ nmap --script=mysql-enum [target]</code></pre>
 <p><code>DIRB</code> is a Web Content Scanner. It looks for existing (and/or hidden) Web Objects.</p>
 <h3 data-number="1.7.2" id="reverse-shell"><span class="header-section-number">1.7.2</span> Reverse Shell</h3>
 <pre class="shell"><code>$ ;nc -e /bin/bash</code></pre>
-<p>For more information checkout the following GitHub repo: https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md</p>
+<p>For more information checkout the following GitHub repo: <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md">PayloadsAllTheThings</a></p>
 <p>If you gain access depending on the OS you can try the following commands to get more information: &gt;Linux</p>
 <pre class="shell"><code>  $ whoami
   $ id
