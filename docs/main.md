@@ -43,7 +43,7 @@ If you also have a 4k-panel, you probably will face some scaling issues like me.
 
 ## Linux Basics
 
-### Basic commands
+### Basic Commands
 
 | Command            | Description |
 | -----------        | ----------- |
@@ -59,21 +59,12 @@ If you also have a 4k-panel, you probably will face some scaling issues like me.
 | `netstat`	    | Shows network status. |
 | `ss`   | Another utility to investigate sockets. |
 | `ps`    | Shows process status. |
-| `who`    | Displays who is logged in. |
+| `who`    | Displays who are logged in. |
 | `env`   | Prints environment or sets and executes command. |
 | `lsblk`    | Lists block devices. |
 | `lsusb`   | Lists USB devices. |
 | `lsof`    | Lists opened files. |
 | `lspci`    | Lists PCI devices. |
-
-### Bashscript
-Run a `bashscript` with persistent permissions:
-``` bash
-$ ./bashscript -p
-```
-```text
-*(-p   = persists the permissions)
-```
 
 ### FIND
 `find` search for files in a directory hierarchy:
@@ -143,7 +134,396 @@ If we want to discard for example all errors and redirect the data into a file w
 $ find /etc/ -name shadow 2> stderr.txt 1> stdout.txt
 ```
 
+## Bash Scripting
 
+If we want to execute a bash script we can do this by the following command:
+
+```shell
+$ <interpreter> script.sh <optional arguments>
+```
+
+Run a bash script with persistent permissions (`-p`):
+``` bash
+$ ./bashscript -p
+```
+
+In the first line we can specify the interpreter but if we call the script with another one, the defined in the `shebang` will be ignored:
+
+```shell
+#!/bin/bash
+```
+
+This is also possible with other scripting languages like Python `#!/usr/bin/env python`.
+### Conditional Execution
+
+The rough basic structure is as follows:
+
+```shell
+if [[ -z "$string" ]]; then
+  echo "String is empty"
+elif [[ -n "$string" ]]; then
+  echo "String is not empty"
+fi
+```
+#### Operators
+
+String comparison operators "`<` / `>`" **works only** within the double square brackets `[[ <condition> ]]`. 
+
+| Command            | Description |
+| -----------        | ----------- |
+| `[[ -z STRING ]]`      | Empty string |
+| `[[ -n STRING ]]`      | Not empty string |
+| `[[ STRING == STRING ]]`      | Equal |
+| `[[ STRING != STRING ]]`          | Not Equal |
+| `[[ NUM -eq NUM ]]`    | Equal |
+| `[[ NUM -ne NUM ]]`    | Not equal |
+| `[[ NUM -lt NUM ]]`    | Less than |
+| `[[ NUM -le NUM ]]`    | Less than or equal |
+| `[[ NUM -gt NUM ]]`    | Greater than |
+| `[[ NUM -ge NUM ]]`	    | Greater than or equal |
+| `[[ -o noclobber ]]`   | If OPTIONNAME is enabled |
+| `[[ ! EXPR ]]`    | Not |
+| `[[ X && Y ]]`    | And |
+| `[[ X || Y ]]`    | Or |
+| `[[ STRING =~ STRING ]]`   | Regexp |
+| `(( NUM < NUM ))`   | Numeric conditions |
+
+#### File Operators
+
+| Command            | Description |
+| -----------        | ----------- |
+| `[[ -e FILE ]]`      | Exists |
+| `[[ -r FILE ]]`      | Readable |
+| `[[ -h FILE ]]`      | Symlink |
+| `[[ -d FILE ]]`          | Directory |
+| `[[ -w FILE ]]`    | Writable |
+| `[[ -s FILE ]]`    | Size is > 0 bytes |
+| `[[ -f FILE ]]`    | File |
+| `[[ -x FILE ]]`    | Executable |
+| `[[ FILE1 -nt FILE2 ]]`    | 1 is more recent than 2 |
+| `[[ FILE1 -ot FILE2 ]]`	    | 2 is more recent than 1 |
+| `[[ FILE1 -ef FILE2 ]]`   | Same files |
+
+### Arguments
+
+It is possible to pass up to 9 arguments (`$0`-`$9`) to a script:
+
+```shell
+            $ ./script.sh ARG1 ARG2 ARG3 ... ARG9
+ASSIGNMENTS:       $0      $1   $2   $3 ...   $9
+```
+
+### Special Variables
+
+| Command            | Description |
+| -----------        | ----------- |
+| `$#`      | This variable holds the number of arguments passed to the script. |
+| `$@`      | This variable can be used to retrieve the list of command-line arguments. |
+| `$n`      | Each command-line argument can be selectively retrieved using its position. For example, the first argument is found at `$1`. |
+| `$$`          | The process ID of the currently executing process. |
+| `$?`    | The exit status of the script. This variable is useful to determine a command's success. The value 0 represents successful execution, while 1 is a result of a failure. |
+
+### Variables
+
+It is important that when assigning a variable there is **no space** around the equal sign:
+
+```shell
+variable="test"
+```
+
+### Arrays
+
+The values in the array are separated by spaces. If we want to escape these spaces, we can use single quotes (`'`...`'`) or double quotes (`"`...`"`).
+
+```shell
+#!/bin/bash
+
+domains=(www.inlanefreight.com ftp.inlanefreight.com vpn.inlanefreight.com www2.inlanefreight.com)
+
+echo ${domains[0]}
+```
+
+### Arithmetic
+
+| Operator            | Description |
+| -----------        | ----------- |
+| `+`      | Addition |
+| `-`      | Subtraction |
+| `*`      | Division |
+| `%`          | 	Modulus |
+| `variable++`    | Increase the value of the variable by 1 |
+| `variable--`    | Decrease the value of the variable by 1 |
+
+We can also calculate the length of the variable. Using this function `${#variable}`, every character gets counted, and we get the total number of characters in the variable.
+
+### Input Control
+
+Read input from the user, while the script is running:
+
+```shell
+read -p "Select your option: " opt
+```
+```
+*(-p    = Ensures that our input remains on the same line
+  opt   = The input will be stored in the variable opt)
+```
+
+### Output Control
+
+In some cases the scripts take longer time and the user don't have any feedback. To solve this problem we can use `tee`, which enables us to write something to a file and also returning it as standard output:
+
+```shell
+netrange=$(whois $ip | grep "NetRange\|CIDR" | tee -a CIDR.txt)
+```
+```
+*(-a   = Append to the given FILEs, do not overwrite)
+```
+
+### Loops
+
+#### For Loops
+
+The idea behind for loops is that we iterate over something, or we have a limit how often the loop should run.
+
+*Syntax - Examples*
+
+```shell
+for $variable in 1 2 3 4
+do
+	echo $variable
+done
+
+
+for $variable in file1 file2 file3
+do
+	echo $variable
+done
+
+
+for ip in "10.10.10.170 10.10.10.174 10.10.10.175"
+do
+	ping -c 1 $ip
+done
+```
+
+#### While Loops
+
+The while loop will be executed as long the condition is fulfilled. There are two keywords available which gives us more control over the while loop.
+
+- `break` → Interrupts the loop 
+- `continue` → Immediately continues with the next loop run
+
+*Syntax - Examples*
+
+```shell
+#!/bin/bash
+
+counter=0
+
+while [ $counter -lt 10 ]
+do
+  # Increase $counter by 1
+  ((counter++))
+  echo "Counter: $counter"
+
+  if [ $counter == 2 ]
+  then
+    continue
+  elif [ $counter == 4 ]
+  then
+    break
+  fi
+done
+```
+
+#### Until Loops
+
+Nevertheless, the until loop works precisely like the while loop, but with the difference:
+
+- The code inside an until loop is executed as long as the particular condition is false
+
+### Switch case
+
+The keyword for a switch-case-statement starts with the keyword `case`, followed by the variable or value as an expression, which is then compared in the pattern. If the variable or value matches the expression, then the statements are executed after the parenthesis and ended with a double semicolon (`;;`).
+
+*Syntax - Examples*
+
+```shell
+read -p "Select your option: " opt
+
+case $opt in
+	"1") network_range ;;
+	"2") ping_host ;;
+	"3") network_range && ping_host ;;
+	"*") exit 0 ;;
+esac
+```
+
+### Functions
+
+The definition of a function is at the beginning of a bash script this ensures that it is already defined before it is called.
+
+*Syntax - Examples*
+
+```shell
+# Method 1 - Functions
+
+function name {
+	<commands>
+}
+
+# Method 2 - Functions
+
+name() {
+	<commands>
+}
+```
+
+The function is called only by calling the specified name of the function.
+
+#### Parameter Passing
+
+In principle, the same applies to the passed parameters as to parameters passed to a shell script. These are `$1` - `$9` (`${n}`), or `$variable` as we have already seen. Each function has its own set of parameters. So they do not collide with those of other functions or the parameters of the shell script
+
+*Syntax - Examples*
+
+```shell
+#!/bin/bash
+
+function print_pars {
+	echo $1 $2 $3
+}
+
+one="First parameter"
+two="Second parameter"
+three="Third parameter"
+
+print_pars "$one" "$two" "$three"
+```
+
+#### Return Values
+
+Like our bash script, the functions return status codes:
+
+| Return Code        | Description |
+| -----------        | ----------- |
+| `1`      | General errors |
+| `2`      | 	Misuse of shell builtins |
+| `126`      | Command invoked cannot execute |
+| `127`          |  Command not found |
+| `128`    | Invalid argument to exit |
+| `128+n`    | Fatal error signal "`n`" |
+| `130`    | Script terminated by Control-C |
+| `255\*`    | Exit status out of range |
+
+To get the value of a function back, we can use several methods like `return`, `echo`, or a `variable`.
+
+*Syntax - Examples*
+
+```shell
+#!/bin/bash
+
+function given_args {
+
+        if [ $# -lt 1 ]
+        then
+                echo -e "Number of arguments: $#"
+                return 1
+        else
+                echo -e "Number of arguments: $#"
+                return 0
+        fi
+}
+
+# No arguments given
+given_args
+echo -e "Function status code: $?\n"
+
+# One argument given
+given_args "argument"
+echo -e "Function status code: $?\n"
+
+# Pass the results of the funtion into a variable
+content=$(given_args "argument")
+
+echo -e "Content of the variable: \n\t$content"
+```
+
+### Debugging
+
+Bash allows us to debug our code by using the "`-x`" (`xtrace`) and "`-v`" (`verbose`) options.
+
+### Cheat Sheet
+
+For more information about bash scripting have a look in the following cheat sheet: https://devhints.io/bash
+## Information Gathering
+### Passive Information Gathering
+
+`whois` can be used for querying domain names, IP addresses, or autonomous systems.
+
+#### DIG
+
+`dig` is a DNS lookup utility.
+
+`WaybackMachine` is an American digital library that provides free public access to digitalized materials, including websites, collected automatically via its web crawlers.
+
+```shell
+$ dig any google.com @8.8.8.8
+```
+```
+*(any         = query all types of records
+  @8.8.8.8    = define a dns server from which you wnat to retrieve the information)
+```
+
+#### Project Sonar
+
+To find all available subdomains we can use `Project Sonar`:
+
+```shell
+$ curl -s https://sonar.omnisint.io/subdomains/$TARGET | jq -r '.[]' | sort -u
+```
+
+#### Certificates
+
+To gain more information we can search for certificates at sites like `https://crt.sh` and `https://search.censys.io/certificates`.
+
+### Active Information Gathering
+
+`Wappalyzer` is a browser extension which finds out what technologies are used on a website.
+
+`WAFW00F` is a Web Application Firewall Fingerprinting Tool.
+
+`Aquatone` is a tool for visual inspection of websites across a large amount of hosts and is convenient for quickly gaining an overview of HTTP-based attack surface.
+
+#### HTTP Header
+
+We can gain information about the version of the web server and the operating system with the curl flag `-I` which returns us the `http header`:
+
+```shell
+$ curl -I "http://${TARGET}"
+```
+
+`X-Powered-By header` can tell us what the web app is using. We can see values like PHP, ASP.NET, JSP, etc.
+
+`Cookies` are another value to look at as each technology by default has its cookies. Some default cookie values are:
+
+- .NET: ASPSESSIONID<RANDOM>=<COOKIE_VALUE>
+- PHP: PHPSESSID=<COOKIE_VALUE>
+- JAVA: JSESSION=<COOKIE_VALUE>
+
+#### WhatWeb
+
+`WhatWeb` is a Web scanner - identify technologies used by
+websites.
+
+```shell
+$ whatweb -a 1 https://www.facebook.com -v
+```
+```
+*(-a    = Set the aggression level. 1(low) - 4(high) 
+  -v    = verbose)
+```
+<!-- USE wafwoof to detect the CMS!!! -->
 
 ## Exploiting Network Services
 
@@ -269,7 +649,7 @@ hydra -t 16 -l root -P /usr/share/wordlists/rockyou.txt -vV 10.10.6.199 mysql
   [mysql]   = Sets the protocol)
 ```
 
-### Jon the Ripper
+### John the Ripper
 If we have a hash which look something like the following example:
 ```
 carl:*EA031893AA21444B170FC2162A56978B8CEECE18
