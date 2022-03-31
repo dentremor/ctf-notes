@@ -498,21 +498,113 @@ To gain more information we can search for certificates at sites like [crt.sh](h
 
 `Aquatone` is a tool for visual inspection of websites across a large amount of hosts and is convenient for quickly gaining an overview of HTTP-based attack surface.
 
-#### HTTP Header
+#### HTTP
+
+There are several headers we can face:
+
+| Header Type        | Message Type |    Description |
+| -----------        | ----------- |  ----------- |
+| General Headers   | request & response | Describes the message rather than the content |
+| Entity Headers    | request & response | 	Describes the content |
+| Request Headers   |  request | HTTP requests are messages sent by the client to initiate an action on the server |
+| Response Headers  |  response | HTTP responses are messages sent by a server in response to a request message |
+| Security Headers  | response | These define certain policies and rules when accessing a web page, which the browser must follow |
+
+For further information please have a look at [Mozilla's mdn web docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
+
+The most commonly used request methods are:
+- `GET`
+- `POST`
+- `HEAD`
+- `PUT`
+- `DELETE`
+- `OPTIONS`
+- `PATCH`
+
+##### GET Request
 
 We can gain information about the version of the web server and the operating system with the curl flag `-I` which returns us the `http header`:
 
 ```shell
 $ curl -I "http://${TARGET}"
 ```
+```
+*(-I  = return HTTP header)
+```
+
+If we face `HTTP authentication` we can pass our credentials with one of the following two commands:
+
+```shell
+$ curl -u admin:admin http://${TARGET}
+$ curl  http://admin:admin@<SERVER_IP>:<PORT>/ 
+```
+```
+*(-u  = pass credentials to the server)
+```
 
 `X-Powered-By header` can tell us what the web app is using. We can see values like PHP, ASP.NET, JSP, etc.
 
-`Cookies` are another value to look at as each technology by default has its cookies. Some default cookie values are:
+`Cookies` are another value to look at as each technology by default has its cookies. Some default cookies are:
 
 - .NET: ASPSESSIONID<RANDOM>=<COOKIE_VALUE>
 - PHP: PHPSESSID=<COOKIE_VALUE>
 - JAVA: JSESSION=<COOKIE_VALUE>
+
+We have the ability to pass headers with our request with `-H`. This can be useful if, for example, we want to provide an authorization token. 
+
+```shell
+$ curl -H 'Authorization: Basic YWRtaW46YWRtaW4=' http://<SERVER_IP>:<PORT>/
+```
+```
+*(-H  = pass a header)
+```
+
+If we want to repeat a request from the browser with `cURL`, we can copy (`copy -> copy as cURL`) the request as a curl command from the network tab.
+
+It may happen that the server reflects the response to us in a JSON format. To be able to read it better, we have the possibility to improve the presentation.
+
+```shell
+$ curl -s http://<SERVER_IP>:<PORT>/api.php/city/le | jq
+```
+```
+*(-s  = silent
+  jq  = Command-line JSON processor)
+```
+
+##### POST Request
+
+It mostly appears that we have to log in with a `POST` request. In this case we can use command from below.
+
+```shell
+$ curl -L -X POST -d 'username=admin&password=admin' http://<SERVER_IP>:<PORT>/ -i -v
+```
+```
+*(-L  = If the server reports that the requested page  has  moved to a different location  this option will make curl redo the request on  the  new  place
+  -X  = the method set with -X, --request overrides the method curl would otherwise select to use
+  -d  = HTTP POST data
+  -i  = Include protocol response headers in the output
+  -v  = verbose)
+```
+
+With a successful authentication, we should gain a cookie from the `Set-Cookie` header. For all subsequent requests we can use this cookie to authenticate us.
+
+```shell
+$ curl -b 'PHPSESSID=c1nsa6op7vtk7kdis7bcnbadf1' http://<SERVER_IP>:<PORT>/
+```
+```
+*(-b <data|filename> = Pass the data to the HTTP server in the Cookie header)
+```
+
+In some cases it can appear that we have to use a `JSON` format
+```shell
+$ curl -X POST -d '{"search":"london"}' -b 'PHPSESSID=c1nsa6op7vtk7kdis7bcnbadf1' -H 'Content-Type: application/json' http://<SERVER_IP>:<PORT>/search.php
+```
+```
+*(-X  = the method set with -X, --request overrides the method curl would otherwise select to use
+  -d  = HTTP POST data
+  -b <data|filename> = Pass the data to the HTTP server in the Cookie header
+  -H  = pass a header)
+```
 
 #### WhatWeb
 
@@ -805,13 +897,27 @@ $ hashcat --force -m 500 -a 0 -o found1.txt --remove puthasheshere.hash /usr/sha
 ### Curl
 If we want to get sources of a webpage, we can do this with `Curl`:
 ```bash
-$ curl -X GET http://10.10.4.59:8081/ctf/post
+$ curl -X GET http://10.10.4.59:8081/ctf/post.html
 ```
 ```text
-*(-X [GET]          = Set kind of fetch
+*(-X [GET]          = Set kind of fetch method
   [target]          = The URL of the webpage we want to fetch
   -d [param]        = Sends the specified data in a POST  request  to  the HTTP server)
 ```
+
+We can also save files with the `-0` flag:
+```bash
+$ curl -O inlanefreight.com/index.html -o home.html -s -v
+```
+```text
+*(-0    = Save the output into a file
+  -o    = Sepcify the filename
+  -s    = Silent the status
+  -v    = verbose)
+```
+To retrieve an even more verbose output use the `-vvv` flag.
+The certificate check can be skipped with the `-k` flag, when establish a `https` connection via curl.
+
 
 `CEWL` password list generator.
 
