@@ -41,7 +41,7 @@ qemu-system-x86_64 -enable-kvm -m 4096 -smp $(nproc) -cpu host -device ac97 -aud
 
 If you also have a 4k-panel, you probably will face some scaling issues like me. In that case make sure you use `Wayland` instead of `X11`.
 
-## Linux Basics
+## Linux
 
 ### Basic Commands
 
@@ -498,114 +498,6 @@ To gain more information we can search for certificates at sites like [crt.sh](h
 
 `Aquatone` is a tool for visual inspection of websites across a large amount of hosts and is convenient for quickly gaining an overview of HTTP-based attack surface.
 
-#### HTTP
-
-There are several headers we can face:
-
-| Header Type        | Message Type |    Description |
-| -----------        | ----------- |  ----------- |
-| General Headers   | request & response | Describes the message rather than the content |
-| Entity Headers    | request & response | 	Describes the content |
-| Request Headers   |  request | HTTP requests are messages sent by the client to initiate an action on the server |
-| Response Headers  |  response | HTTP responses are messages sent by a server in response to a request message |
-| Security Headers  | response | These define certain policies and rules when accessing a web page, which the browser must follow |
-
-For further information please have a look at [Mozilla's mdn web docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
-
-The most commonly used request methods are:
-- `GET`
-- `POST`
-- `HEAD`
-- `PUT`
-- `DELETE`
-- `OPTIONS`
-- `PATCH`
-
-##### GET Request
-
-We can gain information about the version of the web server and the operating system with the curl flag `-I` which returns us the `http header`:
-
-```shell
-$ curl -I "http://${TARGET}"
-```
-```
-*(-I  = return HTTP header)
-```
-
-If we face `HTTP authentication` we can pass our credentials with one of the following two commands:
-
-```shell
-$ curl -u admin:admin http://${TARGET}
-$ curl  http://admin:admin@<SERVER_IP>:<PORT>/ 
-```
-```
-*(-u  = pass credentials to the server)
-```
-
-`X-Powered-By header` can tell us what the web app is using. We can see values like PHP, ASP.NET, JSP, etc.
-
-`Cookies` are another value to look at as each technology by default has its cookies. Some default cookies are:
-
-- .NET: ASPSESSIONID<RANDOM>=<COOKIE_VALUE>
-- PHP: PHPSESSID=<COOKIE_VALUE>
-- JAVA: JSESSION=<COOKIE_VALUE>
-
-We have the ability to pass headers with our request with `-H`. This can be useful if, for example, we want to provide an authorization token. 
-
-```shell
-$ curl -H 'Authorization: Basic YWRtaW46YWRtaW4=' http://<SERVER_IP>:<PORT>/
-```
-```
-*(-H  = pass a header)
-```
-
-If we want to repeat a request from the browser with `cURL`, we can copy (`copy -> copy as cURL`) the request as a curl command from the network tab.
-
-It may happen that the server reflects the response to us in a JSON format. To be able to read it better, we have the possibility to improve the presentation.
-
-```shell
-$ curl -s http://<SERVER_IP>:<PORT>/api.php/city/le | jq
-```
-```
-*(-s  = silent
-  jq  = Command-line JSON processor)
-```
-
-##### POST Request
-
-It mostly appears that we have to log in with a `POST` request. In this case we can use command from below.
-
-```shell
-$ curl -L -X POST -d 'username=admin&password=admin' http://<SERVER_IP>:<PORT>/ -i -v
-```
-```
-*(-L  = If the server reports that the requested page  has  moved to a different location  this option will make curl redo the request on  the  new  place
-  -X  = the method set with -X, --request overrides the method curl would otherwise select to use
-  -d  = HTTP POST data
-  -i  = Include protocol response headers in the output
-  -v  = verbose)
-```
-
-With a successful authentication, we should gain a cookie from the `Set-Cookie` header. For all subsequent requests we can use this cookie to authenticate us.
-
-```shell
-$ curl -b 'PHPSESSID=c1nsa6op7vtk7kdis7bcnbadf1' http://<SERVER_IP>:<PORT>/
-```
-```
-*(-b <data|filename> = Pass the data to the HTTP server in the Cookie header)
-```
-
-In some cases it can appear that we have to use a `JSON` format
-```shell
-$ curl -X POST -d '{"search":"london"}' -b 'PHPSESSID=c1nsa6op7vtk7kdis7bcnbadf1' -H 'Content-Type: application/json' http://<SERVER_IP>:<PORT>/search.php
-```
-```
-*(-X  = the method set with -X, --request overrides the method curl would otherwise select to use
-  -d  = HTTP POST data
-  -b <data|filename> = Pass the data to the HTTP server in the Cookie header
-  -H  = pass a header)
-```
-
 #### WhatWeb
 
 `WhatWeb` is a Web scanner - identify technologies used by
@@ -709,7 +601,7 @@ $ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://
 $ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://example.com:PORT/ -H 'Host: FUZZ.example.com' -fs xxx
 ```
 ```
-*(-H 'Host: FUZZ.example.com' = Header `"Name: Value"`, separated by colon.
+*(-H 'Host: FUZZ.example.com' = Header `"Name: Value"`, separated by colon
   -fs xxx                     = filter all incorrect results)
 ```
 
@@ -720,11 +612,31 @@ $ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://
 ```shell
 $ ffuf -w SecLists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ -u http://admin.academy.htb:PORT/admin/admin.php?FUZZ=key -fs xxx
 ```
-
+```
+*(-fs xxx   = filter all incorrect results)
+```
 #### POST Request
 
 ```shell
 $ ffuf -w /opt/useful/SecLists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ -u http://admin.academy.htb:PORT/admin/admin.php -X POST -d 'FUZZ=key' -H 'Content-Type: application/x-www-form-urlencoded' -fs xxx
+```
+```
+*(-X                          = HTTP method to use
+  -d                          = POST data
+  -H 'Host: FUZZ.example.com' = Header `"Name: Value"`, separated by colon
+  -fs xxx                     = filter all incorrect results)
+```
+
+#### Value Fuzzing
+
+```shell
+$ ffuf -w ids.txt:FUZZ -u http://admin.academy.htb:PORT/admin/admin.php -X POST -d 'id=FUZZ' -H 'Content-Type: application/x-www-form-urlencoded' -fs xxx
+```
+```
+*(-X                          = HTTP method to use
+  -d                          = POST data
+  -H 'Host: FUZZ.example.com' = Header `"Name: Value"`, separated by colon
+  -fs xxx                     = filter all incorrect results)
 ```
 
 ## Exploiting Network Services
@@ -828,24 +740,75 @@ There are three relevant commands, when it comes to `SMTP`:
 For further information see the following documentation: 
 [offensive-security.com](https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/)
 
+### SQL injection
+#### Types
+1. In-band
+1.1 Union Based
+1.1 Error Based
+2. Blind
+2.1 Boolean Based
+2.2 Time Based
+3. Out-of-band
+
+#### SQLi Discovery
+
+| Payload       | URL Encoded |
+| -----------    | ----------- |
+| `'`      | `%27`  |
+| `"`      | 	`%22` |
+| `#`      | `%23`  |
+| `;`      |  `%3B` |
+| `)`      | `%29`  |
+
+If we add one of the above payloads and observe any weird behavior from the webpage, we can assume that there is a SQL injection possible.
+
+For example, we can now try an `OR Injection`.
+
+```sql
+admin' or '1'='1
+```
+
+When there is no hint for a valid username we can repeat this for the password.
+
+For more Payloads please have a look in the [PayloadsAllTheThings Project](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection#authentication-bypass).
+
+#### Comments
+
+| Comment       | Description |
+| -----------    | ----------- |
+| `-- `      | Inline - Must contain a whitespace after the two dashes!  |
+| `#`      | Inline - Note correct URL encoding |
+| `/**/ `      | Inline - Unusual |
+
+#### Union Clause
+
+If we use the union clause it is important that we ensure that the data type on the selected columns are the same.
+
+It can appear that we query two columns from a table and want to union it with another single column. In that case, we have to add another column and fill it with junk. For example `NULL`, because it fits all data types.
+
+```sql
+SELECT * from products where product_id = '1' UNION SELECT username, 2 from passwords
+```
+
 
 ### MySQL
 First we need a client, which is in our case `default-mysql-client`:
 ```bash 
-$ mysql -h [IP] -u [username] -p
+$ mysql -h [IP] -P [port] -u [username] -p
 ```
 ```text
 *(-h [IP]        = Connect to the MariaDB server on the given host
   -u [username]  = The MariaDB user name to use when connecting to the server
+  -P [port]      = The port to use for the connection
   -p             = The password to use when connecting to the server)
 ```
 
-1. `use <database>;`
-2. `show tables;`
-3. `select * from <tablename>;`
+1. `SHOW DATBASES;`
+2. `USE <database>;`
+3. `SHOW TABLES;`
+4. `SELECT * FROM <tablename>;`
 
 If we do not have any credentials we can use `Nmap` or `Metasplot` to gain this information:
-```Nmap```
 ```bash
 $ nmap --script=mysql-enum [target]
 ```
@@ -866,7 +829,6 @@ hydra -t 16 -l root -P /usr/share/wordlists/rockyou.txt -vV 10.10.6.199 mysql
   [IP]      = The IP address of the target machine
   [mysql]   = Sets the protocol)
 ```
-
 ### John the Ripper
 If we have a hash which look something like the following example:
 ```
@@ -894,9 +856,141 @@ $ hashcat --force -m 500 -a 0 -o found1.txt --remove puthasheshere.hash /usr/sha
 ```
 ## Web Fundamentals
 
+### HTTP
+
+There are several headers we can face:
+
+| Header Type        | Message Type |    Description |
+| -----------        | ----------- |  ----------- |
+| General Headers   | request & response | Describes the message rather than the content |
+| Entity Headers    | request & response | 	Describes the content |
+| Request Headers   |  request | HTTP requests are messages sent by the client to initiate an action on the server |
+| Response Headers  |  response | HTTP responses are messages sent by a server in response to a request message |
+| Security Headers  | response | These define certain policies and rules when accessing a web page, which the browser must follow |
+
+For further information please have a look at [Mozilla's mdn web docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).
+
+The most commonly used request methods are:
+
+- `GET`
+- `POST`
+- `HEAD`
+- `PUT`
+- `DELETE`
+- `OPTIONS`
+- `PATCH`
+
+#### GET Request
+
+We can gain information about the version of the web server and the operating system with the curl flag `-I` which returns us the `http header`:
+
+```shell
+$ curl -I "http://${TARGET}"
+```
+```
+*(-I  = return HTTP header)
+```
+
+If we face `HTTP authentication` we can pass our credentials with one of the following two commands:
+
+```shell
+$ curl -u admin:admin http://${TARGET}
+$ curl  http://admin:admin@<SERVER_IP>:<PORT>/ 
+```
+```
+*(-u  = pass credentials to the server)
+```
+
+`X-Powered-By header` can tell us what the web app is using. We can see values like PHP, ASP.NET, JSP, etc.
+
+`Cookies` are another value to look at as each technology by default has its cookies. Some default cookies are:
+
+- .NET: ASPSESSIONID<RANDOM>=<COOKIE_VALUE>
+- PHP: PHPSESSID=<COOKIE_VALUE>
+- JAVA: JSESSION=<COOKIE_VALUE>
+
+We have the ability to pass headers with our request with `-H`. This can be useful if, for example, we want to provide an authorization token. 
+
+```shell
+$ curl -H 'Authorization: Basic YWRtaW46YWRtaW4=' http://<SERVER_IP>:<PORT>/
+```
+```
+*(-H  = pass a header)
+```
+
+If we want to repeat a request from the browser with `cURL`, we can copy (`copy -> copy as cURL`) the request as a curl command from the network tab.
+
+It may happen that the server reflects the response to us in a JSON format. To be able to read it better, we have the possibility to improve the presentation.
+
+```shell
+$ curl -s http://<SERVER_IP>:<PORT>/api.php/city/le | jq
+```
+```
+*(-s  = silent
+  jq  = Command-line JSON processor)
+```
+
+#### POST Request
+
+It mostly appears that we have to log in with a `POST` request. In this case we can use command from below.
+
+```shell
+$ curl -L -X POST -d 'username=admin&password=admin' http://<SERVER_IP>:<PORT>/ -i -v
+```
+```
+*(-L  = If the server reports that the requested page  has  moved to a different location  this option will make curl redo the request on  the  new  place
+  -X  = the method set with -X, --request overrides the method curl would otherwise select to use
+  -d  = HTTP POST data
+  -i  = Include protocol response headers in the output
+  -v  = verbose)
+```
+
+With a successful authentication, we should gain a cookie from the `Set-Cookie` header. For all subsequent requests we can use this cookie to authenticate us.
+
+```shell
+$ curl -b 'PHPSESSID=c1nsa6op7vtk7kdis7bcnbadf1' http://<SERVER_IP>:<PORT>/
+```
+```
+*(-b <data|filename> = Pass the data to the HTTP server in the Cookie header)
+```
+
+In some cases it can appear that we have to use a `JSON` format
+```shell
+$ curl -X POST -d '{"search":"london"}' -b 'PHPSESSID=c1nsa6op7vtk7kdis7bcnbadf1' -H 'Content-Type: application/json' http://<SERVER_IP>:<PORT>/search.php
+```
+```
+*(-X  = the method set with -X, --request overrides the method curl would otherwise select to use
+  -d  = HTTP POST data
+  -b <data|filename> = Pass the data to the HTTP server in the Cookie header
+  -H  = pass a header)
+```
+
+#### PUT Request
+
+The `PUT` request looks very similar to the `POST` request and can be used to modify information on a source.
+
+```shell
+$ curl -X PUT http://<SERVER_IP>:<PORT>/api.php/city/london -d '{"city_name":"New_HTB_City", "country_name":"HTB"}' -H 'Content-Type: application/json'
+```
+```
+*(-X  = the method set with -X, --request overrides the method curl would otherwise select to use
+  -d  = HTTP POST data
+  -H  = pass a header)
+```
+
+#### DELETE Request
+
+To delete information we can use the `DELETE` request.
+
+```shell
+$ curl -X DELETE http://<SERVER_IP>:<PORT>/api.php/city/New_HTB_City'
+```
+```
+*(-X  = the method set with -X, --request overrides the method curl would otherwise select to use)
+```
 ### Curl
 If we want to get sources of a webpage, we can do this with `Curl`:
-```bash
+```shell
 $ curl -X GET http://10.10.4.59:8081/ctf/post.html
 ```
 ```text
@@ -927,6 +1021,15 @@ The certificate check can be skipped with the `-k` flag, when establish a `https
 
 `DIRB` is a Web Content Scanner. It looks for existing (and/or hidden) Web Objects.
 
+### Web Applications
+
+[OWASP Web Security Testing Guide](https://github.com/OWASP/wstg/tree/master/document/4-Web_Application_Security_Testing)
+
+Exploit databases:
+
+- (Exploit DB)[https://www.exploit-db.com/]
+- (Rapid7 DB)[https://www.rapid7.com/db/]
+- (Vulnerability Lab)[https://www.vulnerability-lab.com/]
 ### Reverse Shell
 
 #### Netcat
@@ -999,7 +1102,35 @@ find / -perm /4000 2>/dev/null
 ```shell
 sudo chmod +s bash
 ```
+## SQL injection (SQLi)
+### MySQL Basics
 
+To interact with MySQL/MariaDB we can use the `mysql` binary.
+
+```shell
+$ mysql -u root -h docker.hackthebox.eu -P 3306 -p 
+
+Enter password: 
+...SNIP...
+
+mysql> 
+```
+```text
+*(-u    = User
+  -h    = Host
+  -P    = Port
+  -p    = Password)
+```
+#### Operators
+
+- Division (`/`), Multiplication (`*`), and Modulus (`%`)
+- Addition (`+`) and subtraction (`-`)
+- Comparison (`=`, `>`, `<`, `<=`, `>=`, `!=`, `LIKE`)
+- NOT (`!`)
+- AND (`&&`)
+- OR (`||`)
+
+For an overview please have a look at the (MySQL cheatsheet)[https://devhints.io/mysql].
 ## LFI
 
 ```
