@@ -1662,5 +1662,313 @@ cheatsheet)[https://devhints.io/mysql]. ## LFI</p>
 <pre><code>entry=php://filter/convert.base64-encode/resource=index.php</code></pre>
 </div>
 
+<div id="web-proxies" class="title-slide slide section level2" number="1.10">
+<h1><span class="header-section-number">1.10</span> Web Proxies</h1>
+
+</div>
+<div id="proxy-setup" class="slide section level3" number="1.10.1">
+<h1><span class="header-section-number">1.10.1</span> Proxy Setup</h1>
+<h4 id="burp-suite"><span class="header-section-number">1.10.1.1</span>
+Burp Suite</h4>
+<p>Install the Browser Extension <code>FoxyProxy</code> and set up a
+profile as following:</p>
+<pre><code>Proxy Type:   HTTP
+Proxy IP:     127.0.0.1
+Port:         8080</code></pre>
+<p>Select the profile on <code>FoxyProxy</code> and browse
+<code>http://burp</code>. Download the certificate and import it as a
+<code>Certificate Authority</code> in your browser.</p>
+<h4 id="owasp-zap"><span class="header-section-number">1.10.1.2</span>
+OWASP ZAP</h4>
+<p>To get the certificate from ZAP go to
+<code>Tools&gt;Options&gt;Dynamic SSL Certificate</code> and click safe.
+Now import it as a <code>Certificate Authority</code> in your
+browser.</p>
+</div>
+<div id="intercept-responses" class="slide section level3" number="1.10.2">
+<h1><span class="header-section-number">1.10.2</span> Intercept
+Responses</h1>
+<h4 id="burp-suite-1"><span class="header-section-number">1.10.2.1</span> Burp Suite</h4>
+<p>To enable response interception in Burp, go
+to<code>Proxy&gt;Options</code> and enabling
+<code>Intercept Responsen</code>. Now refresh the page in the browser
+with [<code>CTRL+SHIFT+R</code>].</p>
+<p>If we need to unhide hidden form fields, we can do this under
+<code>Proxy&gt;Options&gt;Response Modification</code>.</p>
+<h4 id="owasp-zap-1"><span class="header-section-number">1.10.2.2</span>
+OWASP ZAP</h4>
+<p>We can now enable request interception by pressing
+[<code>CTRL+B</code>], then can visit any page in the pre-configured ZAP
+browser.</p>
+</div>
+<div id="intercept-responses-1" class="slide section level3" number="1.10.3">
+<h1><span class="header-section-number">1.10.3</span> Intercept
+Responses</h1>
+<h4 id="burp-suite-2"><span class="header-section-number">1.10.3.1</span> Burp Suite</h4>
+<p>To replace something automatically go to
+<code>Proxy&gt;Options&gt;Match and Replace</code>.</p>
+<h4 id="owasp-zap-2"><span class="header-section-number">1.10.3.2</span>
+OWASP ZAP</h4>
+<p>In ZAP we can use therefore the <code>ZAP Replacer</code> by pressing
+[<code>CTRL+R</code>].</p>
+</div>
+<div id="repeating-request" class="slide section level3" number="1.10.4">
+<h1><span class="header-section-number">1.10.4</span> Repeating
+Request</h1>
+<h4 id="burp-suite-3"><span class="header-section-number">1.10.4.1</span> Burp Suite</h4>
+<p><code>Proxy&gt;HTTP History</code> then press [<code>CTRL+R</code>]
+to send it to <code>Repeater</code>.</p>
+<h4 id="owasp-zap-3"><span class="header-section-number">1.10.4.2</span>
+OWASP ZAP</h4>
+<p>Right-click on the request and select
+<code>Open/Resend with Request Editor</code>. The other way is to use
+the <code>History</code> in the <code>ZAP HUD</code>.</p>
+</div>
+<div id="repeating-request-1" class="slide section level3" number="1.10.5">
+<h1><span class="header-section-number">1.10.5</span> Repeating
+Request</h1>
+<p>Both tools have a build in decoder and repeater.</p>
+</div>
+<div id="proxying-tools" class="slide section level3" number="1.10.6">
+<h1><span class="header-section-number">1.10.6</span> Proxying
+Tools</h1>
+<h4 id="proxychains"><span class="header-section-number">1.10.6.1</span>
+Proxychains</h4>
+<p>Proxychains is a tool in Linux which routes all traffic coming from
+any command-line tool to any proxy we specify. Before we can use
+Proxychains the <code>/etc/proxychains.conf</code> must be edited like
+the following:</p>
+<pre class="conf"><code>#socks4         127.0.0.1 9050
+http 127.0.0.1 8080
+https 127.0.0.1 8080</code></pre>
+<p>With the <code>quiet_mode</code> we can reduce noise. To use
+Proxychains just use the binary in front of another, which causes a
+request:</p>
+<pre class="shell"><code>$ proxychains curl http://SERVER_IP:PORT
+
+ProxyChains-3.1 (http://proxychains.sf.net)
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Ping IP&lt;/title&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;./style.css&quot;&gt;
+&lt;/head&gt;
+...SNIP...
+&lt;/html&gt; </code></pre>
+<p>We can see at the first line in the response that it worked. So we
+should see the request in Burp or ZAP.</p>
+<h4 id="nmap-1"><span class="header-section-number">1.10.6.2</span>
+NMAP</h4>
+<p>NMAP has its own functionality to use a proxy. It can be used with
+the following command:</p>
+<pre class="shell"><code>$ nmap --proxies http://127.0.0.1:8080 SERVER_IP -pPORT -Pn -sC
+
+Starting Nmap 7.91 ( https://nmap.org )
+Nmap scan report for SERVER_IP
+Host is up (0.11s latency).
+
+PORT      STATE SERVICE
+PORT/tcp open  unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 0.49 seconds</code></pre>
+<pre class="text"><code>*(--proxies    = Uses the following defined proxy
+  -Pn          = Skips host discovery
+  -sC          = Performs a script scan using the default set of scripts)</code></pre>
+<p>The requests should now be displayed in Burp or ZAP.</p>
+<h4 id="metasploit-1"><span class="header-section-number">1.10.6.3</span> Metasploit</h4>
+<p>Metasploit has also the ability to use a proxy:</p>
+<pre class="shell"><code>$ msfconsole
+
+msf6 &gt; use auxiliary/scanner/http/robots_txt
+msf6 auxiliary(scanner/http/robots_txt) &gt; set PROXIES HTTP:127.0.0.1:8080
+
+PROXIES =&gt; HTTP:127.0.0.1:8080
+
+
+msf6 auxiliary(scanner/http/robots_txt) &gt; set RHOST SERVER_IP
+
+RHOST =&gt; SERVER_IP
+
+
+msf6 auxiliary(scanner/http/robots_txt) &gt; set RPORT PORT
+
+RPORT =&gt; PORT
+
+
+msf6 auxiliary(scanner/http/robots_txt) &gt; run
+
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed</code></pre>
+<p>Once again we should see the requests in Burp or ZAP.</p>
+</div>
+<div id="web-fuzzer" class="slide section level3" number="1.10.7">
+<h1><span class="header-section-number">1.10.7</span> Web Fuzzer</h1>
+<h4 id="burp-intruder"><span class="header-section-number">1.10.7.1</span> Burp Intruder</h4>
+<p>If you use the Community Edition of Burp and want to realize larger
+fuzzing consider another tool. Burp is in that regard pretty limited if
+you don’t own the Pro-Version.</p>
+<h5 id="target"><span class="header-section-number">1.10.7.1.1</span>
+Target</h5>
+<p>To define the target simply enter the IP-address and the port.
+Alternatively we can send a request to the Intruder.</p>
+<h5 id="positions"><span class="header-section-number">1.10.7.1.2</span>
+Positions</h5>
+<p>Here we can specify where we want to fuzz and the type of attack. For
+further information click on the <code>?</code> in front of
+<code>Payload Positions</code>.</p>
+<h5 id="payloads"><span class="header-section-number">1.10.7.1.3</span>
+Payloads</h5>
+<p>Please read the given information in the burp mask.</p>
+<h4 id="zap-fuzzer"><span class="header-section-number">1.10.7.2</span>
+ZAP Fuzzer</h4>
+<p>First we need to trigger one request to the target. After that we can
+right-click the request and select (<code>Attack&gt;Fuzz</code>). In the
+request mark the part to fuzz and click the <code>Add...</code>-Button.
+In the new window press the <code>Add...</code>-Button and select a
+wordlist. To apply some modification use the
+<code>Processors...</code>-Button. To adjust the execution, for example
+speed, press the <code>Options...</code>-Button.</p>
+</div>
+<div id="web-scanner" class="slide section level3" number="1.10.8">
+<h1><span class="header-section-number">1.10.8</span> Web Scanner</h1>
+<h4 id="burp-scanner"><span class="header-section-number">1.10.8.1</span> Burp Scanner</h4>
+<h5 id="target-scope"><span class="header-section-number">1.10.8.1.1</span> Target Scope</h5>
+<p>To start a scan in Burp Suite, we have the following options:</p>
+<ol style="list-style-type: decimal">
+<li>Start scan on a specific request from Proxy History
+(<code>right-click</code> and select one of the scan types)</li>
+<li>Start a new scan on a set of targets</li>
+<li>Start a scan on items in-scope (right-click on a target at the
+sitemap and <code>Add to scope</code> or
+<code>Remove from Scope</code>)</li>
+</ol>
+<h5 id="crawler"><span class="header-section-number">1.10.8.1.2</span>
+Crawler</h5>
+<p>When the scope is defined, go to the <code>Dashboard</code> and click
+<code>New Scan</code>. But it only follows the links on the website. It
+is not a fuzzer like <code>dirbuster</code> or <code>ffuf</code>. If
+needed this can be done with the <code>Burp Intruder</code> or
+<code>Content Discovery</code>.</p>
+<h5 id="passive-scanner"><span class="header-section-number">1.10.8.1.3</span> Passive Scanner</h5>
+<p>With the sitemap and the done request the passive scanner search in
+these done requests for suggested vulnerabilities.</p>
+<p>To start a passive scan go to <code>Target &gt; Site map</code> or
+HTTP History and right-click on a request and select
+<code>Do a passive scan</code>.</p>
+<h5 id="active-scanner"><span class="header-section-number">1.10.8.1.4</span> Active Scanner</h5>
+<p>Overview of actions: 1. It starts by running a Crawl and a web fuzzer
+(like dirbuster/ffuf) to identify all possible pages</p>
+<ol start="2" style="list-style-type: decimal">
+<li><p>It runs a Passive Scan on all identified pages</p></li>
+<li><p>It checks each of the identified vulnerabilities from the Passive
+Scan and sends requests to verify them</p></li>
+<li><p>It performs a JavaScript analysis to identify further potential
+vulnerabilities</p></li>
+<li><p>It fuzzes various identified insertion points and parameters to
+look for common vulnerabilities like XSS, Command Injection, SQL
+Injection, and other common web vulnerabilities</p></li>
+</ol>
+<h5 id="reporting"><span class="header-section-number">1.10.8.1.5</span>
+Reporting</h5>
+<p>To get a report, go to <code>Target &gt; Site map</code> right-click
+on our target and select
+(<code>Issue &gt; Report issues for this host</code>).</p>
+<h4 id="zap-scanner"><span class="header-section-number">1.10.8.2</span>
+ZAP Scanner</h4>
+<h5 id="spider"><span class="header-section-number">1.10.8.2.1</span>
+Spider</h5>
+<p>The spider in burp is the pardon to the crawler in burp. So please
+read the paragraph for a basic explanation.</p>
+<p>In my case starting the spider from the HUD didn’t work. So I had to
+use the dashboard.</p>
+<h5 id="passive-scanner-1"><span class="header-section-number">1.10.8.2.2</span> Passive Scanner</h5>
+<p>When the spider makes requests, the passive scanner is automatically
+run in the background.</p>
+<h5 id="active-scanner-1"><span class="header-section-number">1.10.8.2.3</span> Active Scanner</h5>
+<p>After the spider creates the site tree, the active scan is
+initialized automatically.</p>
+<h5 id="reporting-1"><span class="header-section-number">1.10.8.2.4</span> Reporting</h5>
+<p>To get a report, go to
+<code>Report &gt; Generate HTML Report</code>.</p>
+<h5 id="burp-extension"><span class="header-section-number">1.10.8.2.5</span> Burp Extension</h5>
+<ul>
+<li>.NET beautifier</li>
+<li>J2EEScan<br />
+</li>
+<li>Software Vulnerability Scanner</li>
+<li>Software Version Reporter<br />
+</li>
+<li>Active Scan++<br />
+</li>
+<li>Additional Scanner Checks</li>
+<li>AWS Security Checks</li>
+<li>Backslash Powered Scanner</li>
+<li>Wsdler</li>
+<li>Java Deserialization Scanner</li>
+<li>C02</li>
+<li>Cloud Storage Tester</li>
+<li>CMS Scanner</li>
+<li>Error Message Checks</li>
+<li>Detect Dynamic JS</li>
+<li>Headers Analyzer</li>
+<li>HTML5 Auditor</li>
+<li>PHP Object Injection Check</li>
+<li>JavaScript Security</li>
+<li>Retire.JS</li>
+<li>CSP Auditor</li>
+<li>Random IP Address Header</li>
+<li>Autorize<br />
+</li>
+<li>CSRF Scanner</li>
+<li>JS Link Finder</li>
+</ul>
+</div>
+<div id="sqlmap" class="slide section level3" number="1.10.9">
+<h1><span class="header-section-number">1.10.9</span> SQLMap</h1>
+<pre class="shell"><code>$ sqlmap -hh</code></pre>
+<pre class="text"><code>*(--hh    = Advance help menu)</code></pre>
+<h4 id="http-requests"><span class="header-section-number">1.10.9.1</span> HTTP Requests</h4>
+<h5 id="curl-commands"><span class="header-section-number">1.10.9.1.1</span> Curl Commands</h5>
+<p>To avoid volatility error we can use the console from the browser
+(network tab) and copy the request as a curl command. Now just replace
+<code>curl</code> with <code>sqlmap</code> in your terminal.</p>
+<h5 id="getpost-requests"><span class="header-section-number">1.10.9.1.2</span> GET/POST Requests</h5>
+<pre class="shell"><code>$ sqlmap &#39;http://www.example.com/&#39; --data &#39;uid=1&amp;name=test&#39;</code></pre>
+<pre class="text"><code>*(--data  = Data string to be sent through POST)</code></pre>
+<p>If we have a hint what the vulnerable parameter is, we can pass it
+with the <code>-p</code> flag. When we have to pass several things we
+can mark the vulnerable parameter with a <code>*</code> as follows:</p>
+<pre class="shell"><code>$ sqlmap &#39;http://www.example.com/&#39; --data &#39;uid=1*&amp;name=test&#39;</code></pre>
+<pre class="text"><code>*(--data  = Data string to be sent through POST)</code></pre>
+<h5 id="full-http-requests"><span class="header-section-number">1.10.9.1.3</span> Full HTTP Requests</h5>
+<p>If our HTTP request contains a lot of different header values, or we
+got one from a proxy application like burp we can pass the request via
+file with the <code>-r</code> flag.</p>
+<h5 id="custom-sqlmap-request"><span class="header-section-number">1.10.9.1.4</span> Custom SQLMap
+Request</h5>
+<p>To request with specific rights, for example with a session cookie,
+it is possible to pass a cookie with our request:</p>
+<pre class="shell"><code>$ sqlmap ... --cookie=&#39;PHPSESSID=ab4530f4a7d10448457fa8b0eadac29c&#39;</code></pre>
+<pre class="text"><code>*(--cookie  = HTTP Cookie header value (e.g. &quot;PHPSESSID=a8d127e..&quot;))</code></pre>
+<p>This can also be accomplished with the <code>-H</code> or
+<code>--header</code> flag.</p>
+<pre class="shell"><code>$ sqlmap ... -H=&#39;Cookie:PHPSESSID=ab4530f4a7d10448457fa8b0eadac29c&#39;</code></pre>
+<pre class="text"><code>*(-H/--header  = Extra header (e.g. &quot;X-Forwarded-For: 127.0.0.1&quot;))</code></pre>
+<p>It can happen that a request will be dropped because he contains the
+standard SQLMap’s User-agent value. To prevent cases like this SQLMap
+provides a flag (<code>--random-agent</code>), which selects a random
+<code>User-agent</code>. There is also a flag (<code>--mobile</code>) to
+imitate a smartphone.</p>
+<p>SQLMap tests by default only the HTTP parameters. To test the headers
+for the SQLi vulnerability use the injection mark after the header’s
+value (e.g. <code>--cookie=&quot;id=1*&quot;</code>).</p>
+<p>To change the HTTP method use the <code>--method</code> flag.</p>
+<h5 id="custom-http-request"><span class="header-section-number">1.10.9.1.5</span> Custom HTTP Request</h5>
+<p>SQLMap supports also <code>JSON</code> and <code>XML</code> with the
+<code>--data</code> or <code>-r</code> flag.</p>
+</div>
+
 </body>
 </html>
