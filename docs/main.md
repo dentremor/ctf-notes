@@ -1483,3 +1483,289 @@ For an overview please have a look at the (MySQL cheatsheet)[https://devhints.io
 ```
 entry=php://filter/convert.base64-encode/resource=index.php
 ```
+
+## Web Proxies
+### Proxy Setup
+#### Burp Suite
+
+Install the Browser Extension `FoxyProxy` and set up a profile as following:
+```
+Proxy Type:   HTTP
+Proxy IP:     127.0.0.1
+Port:         8080
+```
+
+Select the profile on `FoxyProxy` and browse `http://burp`. Download the certificate and import it as a `Certificate Authority` in your browser.
+
+#### OWASP ZAP
+
+To get the certificate from ZAP go to `Tools>Options>Dynamic SSL Certificate` and click safe. Now import it as a `Certificate Authority` in your browser.
+
+
+### Intercept Responses
+#### Burp Suite
+
+To enable response interception in Burp, go to`Proxy>Options` and enabling `Intercept Responsen`. Now refresh the page in the browser with [`CTRL+SHIFT+R`].
+
+If we need to unhide hidden form fields, we can do this under `Proxy>Options>Response Modification`.
+
+#### OWASP ZAP
+
+We can now enable request interception by pressing [`CTRL+B`], then can visit any page in the pre-configured ZAP browser.
+
+### Intercept Responses
+#### Burp Suite
+
+To replace something automatically go to `Proxy>Options>Match and Replace`.
+
+#### OWASP ZAP
+
+In ZAP we can use therefore the `ZAP Replacer` by pressing [`CTRL+R`].
+
+### Repeating Request
+#### Burp Suite
+
+`Proxy>HTTP History` then press [`CTRL+R`] to send it to `Repeater`.
+
+#### OWASP ZAP
+
+Right-click on the request and select `Open/Resend with Request Editor`. The other way is to use the `History` in the `ZAP HUD`.
+
+### Repeating Request
+
+Both tools have a build in decoder and repeater.
+
+### Proxying Tools
+
+#### Proxychains
+Proxychains is a tool in Linux which routes all traffic coming from any command-line tool to any proxy we specify. Before we can use Proxychains the `/etc/proxychains.conf` must be edited like the following:
+
+```conf
+#socks4         127.0.0.1 9050
+http 127.0.0.1 8080
+https 127.0.0.1 8080
+```
+
+With the `quiet_mode` we can reduce noise. To use Proxychains just use the binary in front of another, which causes a request:
+
+```shell
+$ proxychains curl http://SERVER_IP:PORT
+
+ProxyChains-3.1 (http://proxychains.sf.net)
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ping IP</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+...SNIP...
+</html> 
+```
+We can see at the first line in the response that it worked. So we should see the request in Burp or ZAP.
+
+#### NMAP
+NMAP has its own functionality to use a proxy. It can be used with the following command:
+
+```shell
+$ nmap --proxies http://127.0.0.1:8080 SERVER_IP -pPORT -Pn -sC
+
+Starting Nmap 7.91 ( https://nmap.org )
+Nmap scan report for SERVER_IP
+Host is up (0.11s latency).
+
+PORT      STATE SERVICE
+PORT/tcp open  unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 0.49 seconds
+```
+```text
+*(--proxies    = Uses the following defined proxy
+  -Pn          = Skips host discovery
+  -sC          = Performs a script scan using the default set of scripts)
+```
+
+The requests should now be displayed in Burp or ZAP.
+
+#### Metasploit
+
+Metasploit has also the ability to use a proxy:
+
+```shell
+$ msfconsole
+
+msf6 > use auxiliary/scanner/http/robots_txt
+msf6 auxiliary(scanner/http/robots_txt) > set PROXIES HTTP:127.0.0.1:8080
+
+PROXIES => HTTP:127.0.0.1:8080
+
+
+msf6 auxiliary(scanner/http/robots_txt) > set RHOST SERVER_IP
+
+RHOST => SERVER_IP
+
+
+msf6 auxiliary(scanner/http/robots_txt) > set RPORT PORT
+
+RPORT => PORT
+
+
+msf6 auxiliary(scanner/http/robots_txt) > run
+
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+
+Once again we should see the requests in Burp or ZAP.
+
+### Web Fuzzer
+#### Burp Intruder
+If you use the Community Edition of Burp and want to realize larger fuzzing consider another tool. Burp is in that regard pretty limited if you don't own the Pro-Version.
+
+##### Target 
+To define the target simply enter the IP-address and the port. Alternatively we can send a request to the Intruder.
+
+##### Positions
+Here we can specify where we want to fuzz and the type of attack. For further information click on the `?` in front of `Payload Positions`.
+
+##### Payloads
+Please read the given information in the burp mask.
+
+
+#### ZAP Fuzzer
+First we need to trigger one request to the target. After that we can right-click the request and select (`Attack>Fuzz`). In the request mark the part to fuzz and click the `Add...`-Button. In the new window press the `Add...`-Button and select a wordlist. To apply some modification use the `Processors...`-Button. To adjust the execution, for example speed, press the `Options...`-Button.
+
+### Web Scanner
+#### Burp Scanner
+##### Target Scope
+To start a scan in Burp Suite, we have the following options:
+
+  1. Start scan on a specific request from Proxy History (`right-click` and select one of the scan types)
+  2. Start a new scan on a set of targets
+  3. Start a scan on items in-scope (right-click on a target at the sitemap and `Add to scope` or `Remove from Scope`)
+
+##### Crawler
+
+When the scope is defined, go to the `Dashboard` and click `New Scan`. But it only follows the links on the website. It is not a fuzzer like `dirbuster` or `ffuf`. If needed this can be done with the `Burp Intruder` or `Content Discovery`.
+
+##### Passive Scanner
+With the sitemap and the done request the passive scanner search in these done requests for suggested vulnerabilities.
+
+To start a passive scan go to `Target > Site map` or HTTP History and right-click on a request and select `Do a passive scan`. 
+
+##### Active Scanner
+Overview of actions:
+  1. It starts by running a Crawl and a web fuzzer (like dirbuster/ffuf) to identify all possible pages
+
+  2. It runs a Passive Scan on all identified pages
+
+  3. It checks each of the identified vulnerabilities from the Passive Scan and sends requests to verify them
+
+  4. It performs a JavaScript analysis to identify further potential vulnerabilities
+
+  5. It fuzzes various identified insertion points and parameters to look for common vulnerabilities like XSS, Command Injection, SQL Injection, and other common web vulnerabilities
+
+##### Reporting
+To get a report, go to `Target > Site map` right-click on our target and select (`Issue > Report issues for this host`).
+
+#### ZAP Scanner
+##### Spider
+The spider in burp is the pardon to the crawler in burp. So please read the paragraph for a basic explanation.
+
+In my case starting the spider from the HUD didn't work. So I had to use the dashboard.
+
+##### Passive Scanner
+When the spider makes requests, the passive scanner is automatically run in the background.
+
+##### Active Scanner
+After the spider creates the site tree, the active scan is initialized automatically.
+
+##### Reporting
+To get a report, go to `Report > Generate HTML Report`.
+
+##### Burp Extension
+  - .NET beautifier	
+  - J2EEScan	
+  - Software Vulnerability Scanner
+  - Software Version Reporter	
+  - Active Scan++	
+  - Additional Scanner Checks
+  - AWS Security Checks	
+  - Backslash Powered Scanner
+  - Wsdler 
+  - Java Deserialization Scanner
+  -  C02
+  -  Cloud Storage Tester
+  -  CMS Scanner
+  -  Error Message Checks
+  -  Detect Dynamic JS
+  -  Headers Analyzer
+  -  HTML5 Auditor
+  -  PHP Object Injection Check
+  -  JavaScript Security
+  -  Retire.JS
+  -  CSP Auditor
+  -  Random IP Address Header
+  -  Autorize	
+  -  CSRF Scanner
+  -  JS Link Finder		
+
+### SQLMap
+```shell
+$ sqlmap -hh
+```
+```text
+*(--hh    = Advance help menu)
+```
+#### HTTP Requests
+##### Curl Commands
+To avoid volatility error we can use the console from the browser (network tab) and copy the request as a curl command. Now just replace `curl` with `sqlmap` in your terminal.
+
+##### GET/POST Requests
+```shell
+$ sqlmap 'http://www.example.com/' --data 'uid=1&name=test'
+```
+```text
+*(--data  = Data string to be sent through POST)
+```
+
+If we have a hint what the vulnerable parameter is, we can pass it with the `-p` flag. When we have to pass several things we can mark the vulnerable parameter with a `*` as follows:
+```shell
+$ sqlmap 'http://www.example.com/' --data 'uid=1*&name=test'
+```
+```text
+*(--data  = Data string to be sent through POST)
+```
+
+##### Full HTTP Requests
+If our HTTP request contains a lot of different header values, or we got one from a proxy application like burp we can pass the request via file with the `-r` flag.
+
+##### Custom SQLMap Request
+
+To request with specific rights, for example with a session cookie, it is possible to pass a cookie with our request:
+```shell
+$ sqlmap ... --cookie='PHPSESSID=ab4530f4a7d10448457fa8b0eadac29c'
+```
+```text
+*(--cookie  = HTTP Cookie header value (e.g. "PHPSESSID=a8d127e.."))
+```
+
+This can also be accomplished with the `-H` or `--header` flag.
+
+```shell
+$ sqlmap ... -H='Cookie:PHPSESSID=ab4530f4a7d10448457fa8b0eadac29c'
+```
+```text
+*(-H/--header  = Extra header (e.g. "X-Forwarded-For: 127.0.0.1"))
+```
+
+It can happen that a request will be dropped because he contains the standard SQLMap's User-agent value. To prevent cases like this SQLMap provides a flag (`--random-agent`), which selects a random `User-agent`. There is also a flag (`--mobile`) to imitate a smartphone.
+
+SQLMap tests by default only the HTTP parameters. To test the headers for the SQLi vulnerability use the injection mark after the header's value (e.g. `--cookie="id=1*"`).
+
+To change the HTTP method use the `--method` flag.
+
+##### Custom HTTP Request
+
+SQLMap supports also `JSON` and `XML` with the `--data` or `-r` flag.
